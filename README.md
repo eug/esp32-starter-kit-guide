@@ -5,6 +5,8 @@ a ~€13 AliExpress ESP32 starter kit to a working smart-room hub — environmen
 monitoring, motion alarm, appliance relays, WiFi dashboard, and Home Assistant —
 with an interactive wiring guide for every step along the way.
 
+**▶ Live demo: [eug.github.io/esp32-starter-kit-guide](https://eug.github.io/esp32-starter-kit-guide/)**
+
 <p align="center"><img src="docs/kit.webp" alt="ESP32 Basic Starter Kit box with all components" width="520"></p>
 
 ## The story
@@ -18,9 +20,9 @@ components to a bench that is wired once and never torn down.
 
 ## The interactive guide
 
-**[`docs/index.html`](docs/index.html)** — open it in any browser (no server
-needed), or enable GitHub Pages (Settings → Pages → deploy from `main`,
-`/docs` folder) to get a shareable URL.
+**Live at [eug.github.io/esp32-starter-kit-guide](https://eug.github.io/esp32-starter-kit-guide/)** —
+or open [`docs/index.html`](docs/index.html) in any browser; it's a single
+self-contained file, no server needed.
 
 What it does:
 
@@ -118,7 +120,7 @@ Firmware is [PlatformIO](https://platformio.org/), terminal-driven (no IDE
 required — I use Zed, but any editor works):
 
 ```sh
-git clone https://github.com/<you>/esp32-starter-kit-guide.git
+git clone https://github.com/eug/esp32-starter-kit-guide.git
 cd esp32-starter-kit-guide
 pio run                  # build
 pio run -t upload        # flash (board on USB; port is auto-detected)
