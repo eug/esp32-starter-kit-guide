@@ -107,14 +107,14 @@
     border-radius: 999px; padding: 5px 14px;
   }
   .progress b { color: var(--accent); font-weight: 600; }
-  .helpbtn {
+  .helpbtn, .tbtn {
     flex: none; width: 29px; height: 29px; border-radius: 50%; cursor: pointer;
     display: inline-flex; align-items: center; justify-content: center;
     background: var(--surface); border: 1px solid var(--line); color: var(--muted);
     font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14px; font-weight: 600;
   }
-  .helpbtn:hover { border-color: var(--accent); }
-  .helpbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .helpbtn:hover, .tbtn:hover { border-color: var(--accent); }
+  .helpbtn:focus-visible, .tbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .helpbtn[aria-pressed="true"] {
     border-color: var(--accent); color: var(--accent); background: var(--surface2);
   }
@@ -276,6 +276,12 @@
   }
 </style>
 
+<script>
+// stamp the theme before first paint — light is the default; the saved choice wins
+try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rg-theme') || 'light'); }
+catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
+</script>
+
 <div class="wrap">
   <p class="eyebrow">Room Guardian · Bench Guide</p>
   <h1>ESP32 Starter Kit: Interactive Guide</h1>
@@ -294,6 +300,7 @@
   <div class="progrow">
     <span class="progress"><b id="prog">0 / 0</b> steps checked, all phases</span>
     <button class="helpbtn" data-ph="help" aria-pressed="false" title="Commands &amp; fixes" aria-label="Help: commands and fixes">?</button>
+    <button class="tbtn" id="themeBtn" title="Toggle light/dark theme" aria-label="Toggle color theme">☾</button>
   </div>
 
   <!-- ================= workspace ================= -->
@@ -1502,6 +1509,20 @@
       });
     });
   })();
+
+  // ---------- theme toggle ----------
+  var themeBtn = document.getElementById('themeBtn');
+  function themeGlyph() {
+    if (themeBtn) themeBtn.textContent =
+      document.documentElement.getAttribute('data-theme') === 'dark' ? '☀' : '☾';
+  }
+  if (themeBtn) themeBtn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('rg-theme', next); } catch (e) {}
+    themeGlyph();
+  });
+  themeGlyph();
 
   // ---------- checkbox persistence ----------
   var KEY = 'rg-guide-v1';
