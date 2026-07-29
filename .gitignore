@@ -1,0 +1,5 @@
+.pio/
+compile_commands.json
+.DS_Store
+secrets.h
+.claude/

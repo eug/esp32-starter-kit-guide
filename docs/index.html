@@ -1,0 +1,1530 @@
+<title>ESP32 Starter Kit: Interactive Guide</title>
+<style>
+  :root {
+    --bg: #eef1ee;
+    --surface: #f8faf8;
+    --surface2: #e3e9e4;
+    --ink: #1c231e;
+    --muted: #5b675e;
+    --line: #cdd6cf;
+    --accent: #a95f27;
+    --accent-ink: #ffffff;
+    --term-bg: #141a15;
+    --term-ink: #cfe0cf;
+    --term-dim: #7d917e;
+    --ok: #2e7d4f;
+    --wire-gnd: #40474a;
+    --bb: #f7f5ec;
+    --bb-edge: #d9d4c4;
+    --bb-trench: #e7e2d2;
+    --hole: #bcb7a6;
+    --pin-gold: #a08034;
+    --esp: #24303a;
+    --esp-edge: #0f171d;
+    --esp-ink: #b8c6cf;
+    --shadow: 0 1px 2px rgba(28,35,30,.06), 0 4px 14px rgba(28,35,30,.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1411; --surface: #171e19; --surface2: #1e2720; --ink: #e4eae4;
+      --muted: #93a096; --line: #2b352d; --accent: #dd9a5b; --accent-ink: #201409;
+      --term-bg: #0b0f0c; --term-ink: #cfe0cf; --term-dim: #6f8271;
+      --ok: #56b183; --wire-gnd: #a7b1b5;
+      --bb: #262c27; --bb-edge: #39423a; --bb-trench: #1e241f; --hole: #4a544b;
+      --pin-gold: #c8a24e; --esp: #1a232b; --esp-edge: #0a0f13; --esp-ink: #8fa3af;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1411; --surface: #171e19; --surface2: #1e2720; --ink: #e4eae4;
+    --muted: #93a096; --line: #2b352d; --accent: #dd9a5b; --accent-ink: #201409;
+    --term-bg: #0b0f0c; --term-ink: #cfe0cf; --term-dim: #6f8271;
+    --ok: #56b183; --wire-gnd: #a7b1b5;
+    --bb: #262c27; --bb-edge: #39423a; --bb-trench: #1e241f; --hole: #4a544b;
+    --pin-gold: #c8a24e; --esp: #1a232b; --esp-edge: #0a0f13; --esp-ink: #8fa3af;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #eef1ee; --surface: #f8faf8; --surface2: #e3e9e4; --ink: #1c231e;
+    --muted: #5b675e; --line: #cdd6cf; --accent: #a95f27; --accent-ink: #ffffff;
+    --term-bg: #141a15; --term-ink: #cfe0cf; --term-dim: #7d917e;
+    --ok: #2e7d4f; --wire-gnd: #40474a;
+    --bb: #f7f5ec; --bb-edge: #d9d4c4; --bb-trench: #e7e2d2; --hole: #bcb7a6;
+    --pin-gold: #a08034; --esp: #24303a; --esp-edge: #0f171d; --esp-ink: #b8c6cf;
+    --shadow: 0 1px 2px rgba(28,35,30,.06), 0 4px 14px rgba(28,35,30,.07);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  .wrap { max-width: 1500px; margin: 0 auto; padding: 32px 18px 70px; }
+
+  .eyebrow {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12px; letter-spacing: .14em; color: var(--accent);
+    text-transform: uppercase; margin: 0 0 8px;
+  }
+  h1 {
+    font-size: clamp(30px, 4vw, 40px); line-height: 1.1; margin: 0 0 6px;
+    letter-spacing: -.02em; text-wrap: balance;
+  }
+  .lede { color: var(--muted); max-width: 70ch; margin: 0; }
+
+  .phases {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;
+    margin: 22px 0 8px; padding: 0; list-style: none;
+  }
+  #benchzone.hide { display: none; }
+  .phases li { display: contents; }
+  .phases .ph {
+    display: block; width: 100%; text-align: left; cursor: pointer; font-family: inherit;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+    padding: 10px 10px 8px; font-size: 12.5px; line-height: 1.35; color: var(--muted);
+  }
+  .phases .ph:hover { border-color: var(--accent); }
+  .phases .ph:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .phases .ph[aria-pressed="true"] {
+    border-color: var(--accent); color: var(--ink); background: var(--surface2);
+    box-shadow: inset 0 2px 0 var(--accent);
+  }
+  .phases .ph[aria-pressed="true"] .ph-n { color: var(--accent); font-weight: 600; }
+  .phases .ph-n {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    display: block; font-size: 11px; letter-spacing: .1em; margin-bottom: 2px;
+  }
+  @media (max-width: 640px) { .phases { grid-template-columns: repeat(3, 1fr); } }
+  section[data-phase] { display: none; }
+  section[data-phase].vis { display: block; }
+  .progrow { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+  .progress {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+    color: var(--muted); background: var(--surface); border: 1px solid var(--line);
+    border-radius: 999px; padding: 5px 14px;
+  }
+  .progress b { color: var(--accent); font-weight: 600; }
+  .helpbtn {
+    flex: none; width: 29px; height: 29px; border-radius: 50%; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--surface); border: 1px solid var(--line); color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14px; font-weight: 600;
+  }
+  .helpbtn:hover { border-color: var(--accent); }
+  .helpbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .helpbtn[aria-pressed="true"] {
+    border-color: var(--accent); color: var(--accent); background: var(--surface2);
+  }
+
+  h2 { font-size: 21px; letter-spacing: -.01em; margin: 44px 0 6px; text-wrap: balance; }
+  .sub { color: var(--muted); margin: 0 0 16px; max-width: 78ch; }
+
+  .term {
+    background: var(--term-bg); color: var(--term-ink); border-radius: 10px;
+    padding: 16px 18px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 13.5px; line-height: 2; overflow-x: auto; box-shadow: var(--shadow);
+  }
+  .term .p { color: var(--accent); user-select: none; }
+  .term .c { color: var(--term-dim); }
+
+  /* ---------- code cards (the firmware track) ---------- */
+  .code {
+    background: var(--term-bg); color: var(--term-ink); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; overflow-x: auto; box-shadow: var(--shadow);
+    white-space: pre; margin: 10px 0;
+  }
+  .code .c { color: var(--term-dim); }
+  .code .k { color: var(--accent); }
+  .step.codecard { border-left: 3px solid var(--accent); }
+  .stitle .nk {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px;
+    color: var(--accent); letter-spacing: .08em; background: var(--surface2);
+    border: 1px solid var(--line); border-radius: 4px; padding: 1px 7px;
+  }
+  .chip.kchip { border-style: dashed; }
+
+  /* ---------- workspace: bench left, steps right ---------- */
+  .workspace {
+    display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+    gap: 20px; align-items: start;
+  }
+  .wsleft { position: sticky; top: 12px; }
+  @media (max-width: 1080px) {
+    .workspace { grid-template-columns: 1fr; }
+    .wsleft { position: static; }
+  }
+
+  .tabs { display: flex; flex-wrap: wrap; gap: 7px; margin: 18px 0 12px; padding: 0; list-style: none; }
+  .chip {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+    border-radius: 999px; padding: 6px 13px; cursor: pointer;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip.hidden { display: none; }
+  .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .chip:focus-visible, input:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .bbwrap {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px 8px; box-shadow: var(--shadow);
+    position: relative;
+  }
+  .bbwrap svg { display: block; width: 100%; height: auto; cursor: grab; touch-action: none; }
+  .bbwrap svg.panning { cursor: grabbing; }
+  .zoomctl { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 2; }
+  .zbtn {
+    width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--ink); cursor: pointer;
+    font: 15px/1 ui-monospace, "SF Mono", Menlo, monospace; box-shadow: var(--shadow);
+  }
+  .zbtn:hover { border-color: var(--accent); color: var(--accent); }
+  .zbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .bbnote { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+  svg .el { transition: opacity .18s ease; }
+  svg .el.past { opacity: .18; }
+  svg .el.future { opacity: 0; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  details.legend {
+    border: 1px solid var(--line); border-radius: 8px; background: var(--surface);
+    margin-top: 8px; padding: 0 12px; font-size: 12.5px;
+  }
+  details.legend summary { padding: 8px 0; font-size: 13px; }
+  .wlegend { display: flex; flex-wrap: wrap; gap: 5px 16px; margin: 0 0 10px; padding: 0; list-style: none; color: var(--muted); }
+  .wlegend .sw { display: inline-block; width: 14px; height: 4px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+
+  /* ---------- right pane cards ---------- */
+  .wsright > [data-ph] { display: none; }
+  .wsright > [data-ph].show { display: block; }
+  .phintro {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 18px; margin: 0 0 14px; box-shadow: var(--shadow);
+    font-size: 14.5px; color: var(--muted);
+  }
+  .phintro strong, .phintro .pinref { color: var(--ink); }
+  .phintro p { margin: 6px 0; }
+
+  .step {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    margin: 0 0 14px; padding: 14px 18px 12px; box-shadow: var(--shadow);
+  }
+  .step.done { border-color: var(--ok); }
+  .step.done .stitle label { color: var(--muted); text-decoration: line-through; }
+  .stitle { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .stitle input {
+    width: 18px; height: 18px; accent-color: var(--ok); flex: none;
+    transform: translateY(2px); cursor: pointer;
+  }
+  .stitle label { font-weight: 650; font-size: 16px; cursor: pointer; }
+  .stitle .n {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px;
+    color: var(--accent); letter-spacing: .08em;
+  }
+  .step p { margin: 8px 0; color: var(--ink); }
+  .step .tip {
+    font-size: 13.5px; color: var(--muted); border-left: 3px solid var(--accent);
+    padding: 2px 0 2px 12px; margin: 10px 0 2px;
+  }
+  table {
+    border-collapse: collapse; margin: 10px 0 4px; font-size: 13px; width: 100%;
+    font-variant-numeric: tabular-nums;
+  }
+  .tblwrap { overflow-x: auto; }
+  th {
+    text-align: left; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; padding: 4px 12px 4px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  td { padding: 5px 12px 5px 0; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: none; }
+  td.mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; white-space: nowrap; }
+  .pinref {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px;
+    background: var(--surface2); border-radius: 4px; padding: 1px 6px; white-space: nowrap;
+  }
+  .swatch { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; background: var(--w); }
+
+  .checkpoint {
+    background: var(--surface); border: 1.5px solid var(--accent); border-radius: 10px;
+    padding: 16px 18px; margin: 0 0 14px; box-shadow: var(--shadow);
+  }
+  .checkpoint h3 { margin: 0 0 4px; font-size: 16.5px; }
+  .checkpoint .sub { margin-bottom: 10px; }
+  .check { display: flex; gap: 10px; align-items: baseline; padding: 4px 0; font-size: 14.5px; }
+  .check input { width: 17px; height: 17px; accent-color: var(--ok); flex: none; transform: translateY(2px); cursor: pointer; }
+  .check label { cursor: pointer; }
+  .check input:checked + label { color: var(--muted); }
+
+  details {
+    border: 1px solid var(--line); border-radius: 8px; background: var(--surface);
+    margin: 8px 0; padding: 0 16px;
+  }
+  summary { cursor: pointer; padding: 11px 0; font-weight: 600; font-size: 14.5px; list-style-position: inside; }
+  details p { margin: 0 0 12px; font-size: 14px; color: var(--muted); max-width: 70ch; }
+  details .mono { color: var(--ink); }
+
+  footer {
+    margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
+    font-size: 13px; color: var(--muted);
+  }
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">Room Guardian · Bench Guide</p>
+  <h1>ESP32 Starter Kit: Interactive Guide</h1>
+  <p class="lede">One bench, six phases, every component in the kit. Pick a phase, then walk
+  its step pills — the bench on the left always draws exactly what the card on the right
+  asks you to build.</p>
+
+  <ul class="phases" role="tablist" aria-label="Build phases">
+    <li><button class="ph" data-ph="1" aria-pressed="true"><span class="ph-n">PH 1</span>GPIO &amp; buttons</button></li>
+    <li><button class="ph" data-ph="2" aria-pressed="false"><span class="ph-n">PH 2</span>Display &amp; sensors</button></li>
+    <li><button class="ph" data-ph="3" aria-pressed="false"><span class="ph-n">PH 3</span>Alarm</button></li>
+    <li><button class="ph" data-ph="4" aria-pressed="false"><span class="ph-n">PH 4</span>Relays</button></li>
+    <li><button class="ph" data-ph="5" aria-pressed="false"><span class="ph-n">PH 5</span>WiFi</button></li>
+    <li><button class="ph" data-ph="6" aria-pressed="false"><span class="ph-n">PH 6</span>Home Assistant</button></li>
+  </ul>
+  <div class="progrow">
+    <span class="progress"><b id="prog">0 / 0</b> steps checked, all phases</span>
+    <button class="helpbtn" data-ph="help" aria-pressed="false" title="Commands &amp; fixes" aria-label="Help: commands and fixes">?</button>
+  </div>
+
+  <!-- ================= workspace ================= -->
+  <div id="benchzone">
+  <ul class="tabs" role="group" aria-label="Step">
+    <li><button class="chip" id="chipAll" data-step="p1" aria-pressed="true">all of phase 1</button></li>
+    <li><button class="chip" data-ph="1" data-step="1" aria-pressed="false">1 ground</button></li>
+    <li><button class="chip" data-ph="1" data-step="2" aria-pressed="false">2 LEDs</button></li>
+    <li><button class="chip" data-ph="1" data-step="3" aria-pressed="false">3 RGB</button></li>
+    <li><button class="chip" data-ph="1" data-step="4" aria-pressed="false">4 buttons</button></li>
+    <li><button class="chip" data-ph="1" data-step="5" aria-pressed="false">5 flash</button></li>
+    <li><button class="chip kchip" data-ph="1" data-step="k1" aria-pressed="false">&lt;/&gt; the loop</button></li>
+    <li><button class="chip kchip" data-ph="1" data-step="k2" aria-pressed="false">&lt;/&gt; buttons</button></li>
+    <li><button class="chip kchip" data-ph="1" data-step="k3" aria-pressed="false">&lt;/&gt; timers</button></li>
+    <li><button class="chip hidden" data-ph="2" data-step="6" aria-pressed="false">6 board-2 power</button></li>
+    <li><button class="chip hidden" data-ph="2" data-step="7" aria-pressed="false">7 OLED</button></li>
+    <li><button class="chip kchip hidden" data-ph="2" data-step="k4" aria-pressed="false">&lt;/&gt; display</button></li>
+    <li><button class="chip hidden" data-ph="2" data-step="8" aria-pressed="false">8 sensors</button></li>
+    <li><button class="chip kchip hidden" data-ph="2" data-step="k5" aria-pressed="false">&lt;/&gt; smoothing</button></li>
+    <li><button class="chip hidden" data-ph="3" data-step="9" aria-pressed="false">9 PIR + IR</button></li>
+    <li><button class="chip kchip hidden" data-ph="3" data-step="k6" aria-pressed="false">&lt;/&gt; state machine</button></li>
+    <li><button class="chip hidden" data-ph="3" data-step="10" aria-pressed="false">10 buzzers</button></li>
+    <li><button class="chip kchip hidden" data-ph="3" data-step="k7" aria-pressed="false">&lt;/&gt; buzzers</button></li>
+    <li><button class="chip hidden" data-ph="4" data-step="11" aria-pressed="false">11 relay</button></li>
+    <li><button class="chip kchip hidden" data-ph="4" data-step="k8" aria-pressed="false">&lt;/&gt; hysteresis</button></li>
+  </ul>
+  <div class="workspace">
+    <div class="wsleft">
+      <div class="bbwrap" id="bbscroll">
+      <div class="zoomctl">
+        <button class="zbtn" id="zin" title="Zoom in">+</button>
+        <button class="zbtn" id="zout" title="Zoom out">−</button>
+        <button class="zbtn" id="zreset" title="Reset view">⟲</button>
+      </div>
+      <svg id="bb" viewBox="0 -92 952 700" role="img"
+        aria-label="Bench diagram: board 1 with the ESP32 and phase 1 wiring on top, board 2 with all modules clipped below it, cross-board wires routed through the margins"></svg></div>
+      <p class="bbnote">Board 1 on top (ESP32 at its top edge, second pin row hanging past the
+      rails), board 2 clipped to board 1's bottom edge — long sides interlock, columns aligned.
+      <strong>Dashed wires travel between boards / to hanging pins.</strong> Hole names read
+      row + column (C7 = row C, col 7); A–E share a column, F–J share a column. Wire modules
+      by their printed pin names, not position.</p>
+      <details class="legend"><summary>wire color legend</summary>
+        <ul class="wlegend">
+          <li><span class="sw" style="background:var(--wire-gnd)"></span>ground</li>
+          <li><span class="sw" style="background:#cf3f36"></span>power (3V3/5V) &amp; red</li>
+          <li><span class="sw" style="background:#d9b91f"></span>yellow</li>
+          <li><span class="sw" style="background:#3f9d54"></span>green</li>
+          <li><span class="sw" style="background:#d97a28"></span>orange</li>
+          <li><span class="sw" style="background:#3d7dc4"></span>blue</li>
+          <li><span class="sw" style="background:#7c56c9"></span>purple</li>
+          <li><span class="sw" style="background:#efede3;outline:1px solid #9a978c"></span>white</li>
+          <li><span class="sw" style="background:#d9c9a3"></span>220Ω resistor (red·red·brown)</li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="wsright" id="pane">
+      <!-- ===== phase 1 ===== -->
+      <div class="phintro" data-ph="1">
+        <p><strong>Phase 1 — GPIO &amp; buttons.</strong> The ESP32 seats at board 1's top
+        edge: the row printed <span class="pinref">3V3 GND D15 … D22 D23</span> into row A,
+        columns 4–18, USB pointing left; the other row hangs off the edge and connects
+        through female→male jumpers. Board unplugged while wiring. Walk the pills in order —
+        each shows its wiring on the bench. After flashing, the dashed
+        <span class="mono">&lt;/&gt;</span> pills walk you through the firmware you just ran —
+        build it, then understand it, then tweak it. When all steps are checked, run the
+        checkpoint below.</p>
+      </div>
+
+      <div class="step" data-ph="1" data-card="1">
+        <div class="stitle"><input type="checkbox" id="s1"><label for="s1"><span class="n">STEP 1</span> &nbsp;Seat the board, ground the rails</label></div>
+        <p>Seat the ESP32 as described in the phase overview — check from the side that the
+        hanging pins touch nothing metal (tape over the rails there if they do). Then ground
+        both − rails:</p>
+        <div class="tblwrap"><table>
+          <tr><th>Wire (M-M)</th><th>From</th><th>To</th></tr>
+          <tr><td><span class="swatch" style="--w:#26282a"></span>black — ground</td><td class="mono">B5 (under the GND pin)</td><td class="mono">top − rail, at column 20</td></tr>
+          <tr><td><span class="swatch" style="--w:#7f868c"></span>gray — rail bridge</td><td class="mono">top − rail, column 62</td><td class="mono">bottom − rail, column 62</td></tr>
+        </table></div>
+        <p class="tip">Press on the board's edges, not the middle — it takes real force the
+        first time. <strong>Verify in software:</strong> flash and open the monitor, plug a
+        spare jumper into <span class="pinref">E12</span> (pin D18's column — the firmware
+        watches it as BTN1 with a pull-up) and touch its free end to each − rail: the monitor
+        prints <span class="pinref mono">red LED toggled</span> on contact. The + rails should
+        print nothing. Test both ends of each − rail — some boards split their rails
+        mid-board.</p>
+      </div>
+
+      <div class="step" data-ph="1" data-card="2">
+        <div class="stitle"><input type="checkbox" id="s2"><label for="s2"><span class="n">STEP 2</span> &nbsp;Red, yellow, green LEDs</label></div>
+        <p>Each LED's chain: <strong>flying jumper</strong> from the hanging GPIO pin down
+        into the breadboard → 220Ω resistor → long leg (anode); the short leg reaches the −
+        rail directly.</p>
+        <div class="tblwrap"><table>
+          <tr><th>LED</th><th>Pin</th><th>F-M</th><th>Lands</th><th>Resistor</th><th>Anode</th><th>Short leg</th></tr>
+          <tr><td><span class="swatch" style="--w:#e0483a"></span>red</td><td class="mono">D12</td><td><span class="swatch" style="--w:#cf3f36"></span>red</td><td class="mono">C20</td><td class="mono">C20 → C22</td><td class="mono">B22</td><td class="mono">into − rail</td></tr>
+          <tr><td><span class="swatch" style="--w:#d9a51f"></span>yellow</td><td class="mono">D13</td><td><span class="swatch" style="--w:#d9b91f"></span>yellow</td><td class="mono">C24</td><td class="mono">C24 → C26</td><td class="mono">B26</td><td class="mono">into − rail</td></tr>
+          <tr><td><span class="swatch" style="--w:#3a9d5f"></span>green</td><td class="mono">D14</td><td><span class="swatch" style="--w:#3f9d54"></span>green</td><td class="mono">C28</td><td class="mono">C28 → C30</td><td class="mono">B30</td><td class="mono">into − rail</td></tr>
+        </table></div>
+        <p class="tip">Splay the LED legs — long leg in row B, short leg into the nearest rail
+        hole. On the hanging row count from the USB end: VIN · GND · <strong>D13 · D12 ·
+        D14</strong> · D27 · … and trust the printed names. 220Ω reads red–red–brown; long
+        leg = anode = resistor side. Verify: with the monitor open, jumper E12 / E13 / E17 to
+        a − rail — each touch toggles its LED for real.</p>
+      </div>
+
+      <div class="step" data-ph="1" data-card="3">
+        <div class="stitle"><input type="checkbox" id="s3"><label for="s3"><span class="n">STEP 3</span> &nbsp;RGB LED</label></div>
+        <p>One LED, four legs, columns 34–37 of row <span class="pinref">B</span>. The
+        <strong>longest leg</strong> is the shared ground (common cathode) — second from the
+        colored-leg end.</p>
+        <div class="tblwrap"><table>
+          <tr><th>Leg</th><th>Goes in</th><th>Pin</th><th>F-M</th><th>Lands</th><th>Resistor</th></tr>
+          <tr><td>red</td><td class="mono">B34</td><td class="mono">D32</td><td><span class="swatch" style="--w:#d97a28"></span>orange</td><td class="mono">C32</td><td class="mono">C32 → C34</td></tr>
+          <tr><td><strong>longest</strong> — common</td><td class="mono">B35</td><td colspan="3">no jumper — a spare <strong>220Ω resistor</strong> runs A35 → − rail</td></tr>
+          <tr><td>green</td><td class="mono">B36</td><td class="mono">D33</td><td><span class="swatch" style="--w:#efede3"></span>white</td><td class="mono">E33</td><td class="mono">E33 → E36</td></tr>
+          <tr><td>blue</td><td class="mono">B37</td><td class="mono">D27</td><td><span class="swatch" style="--w:#3d7dc4"></span>blue</td><td class="mono">C39</td><td class="mono">C39 → C37</td></tr>
+        </table></div>
+        <p class="tip">Wire color is just insulation — nothing electrical. The 220Ω standing
+        in as the common-leg jumper only dims the LED slightly. Colors wrong later → the LED
+        is flipped; longest leg must sit in B35. Flying jumpers used: 6 of 10 — brown,
+        purple, gray, black stay spare for the sensor phases.</p>
+      </div>
+
+      <div class="step" data-ph="1" data-card="4">
+        <div class="stitle"><input type="checkbox" id="s4"><label for="s4"><span class="n">STEP 4</span> &nbsp;Five buttons</label></div>
+        <p>Buttons straddle the trench — legs land in rows <span class="pinref">E</span> and
+        <span class="pinref">F</span>, two columns apart. Signal wire from the GPIO's column,
+        ground drop to the bottom − rail. No resistors — internal pull-ups hold each pin HIGH
+        until a press pulls it to ground.</p>
+        <div class="tblwrap"><table>
+          <tr><th>Btn</th><th>GPIO</th><th>Legs at</th><th>Signal (M-M)</th><th>Ground link</th></tr>
+          <tr><td>BTN1</td><td class="mono">D18</td><td class="mono">40 + 42</td><td class="mono"><span class="swatch" style="--w:#3d7dc4"></span>blue · E12 → D40</td><td class="mono"><span class="swatch" style="--w:#7a5236"></span>brown · G42 → −</td></tr>
+          <tr><td>BTN2</td><td class="mono">D19</td><td class="mono">44 + 46</td><td class="mono"><span class="swatch" style="--w:#7c56c9"></span>purple · E13 → D44</td><td class="mono"><span class="swatch" style="--w:#cf3f36"></span>red · G46 → −</td></tr>
+          <tr><td>BTN3</td><td class="mono">D23</td><td class="mono">48 + 50</td><td class="mono"><span class="swatch" style="--w:#d9b91f"></span>yellow · E17 → D48</td><td class="mono"><span class="swatch" style="--w:#3f9d54"></span>green · G50 → −</td></tr>
+          <tr><td>BTN4</td><td class="mono">D5</td><td class="mono">52 + 54</td><td class="mono"><span class="swatch" style="--w:#d97a28"></span>orange · E11 → D52</td><td class="mono">220Ω · G54 → −</td></tr>
+          <tr><td>BTN5</td><td class="mono">D15</td><td class="mono">56 + 58</td><td class="mono"><span class="swatch" style="--w:#efede3"></span>white · E6 → D56</td><td class="mono">220Ω · G58 → −</td></tr>
+          <tr><td>BTN6</td><td class="mono">BOOT</td><td colspan="3">already on the board, next to USB — nothing to wire</td></tr>
+        </table></div>
+        <p class="tip">Tactile-switch legs come in internally-joined pairs running
+        <em>along</em> the board (E40 ↔ E42 one contact, F40 ↔ F42 the other) — a button that
+        reads constantly pressed is rotated 90°. BTN4/BTN5 use 220Ω resistors as ground links
+        (the M-M wires ran out; 220Ω is nothing against the ~45k pull-up). The kit's sixth
+        physical button stays in the bag on purpose: every usable GPIO is allocated, and the
+        board's own BOOT button covers the job.</p>
+      </div>
+
+      <div class="step" data-ph="1" data-card="5">
+        <div class="stitle"><input type="checkbox" id="s5"><label for="s5"><span class="n">STEP 5</span> &nbsp;Flash it</label></div>
+        <p>No wiring — the bench shows the finished phase 1 build. Connect USB, then:</p>
+        <div class="term">
+          <span class="p">$</span> pio run -t upload<br>
+          <span class="p">$</span> pio device monitor
+        </div>
+        <p>You should see <span class="pinref mono">Room Guardian ready</span> and the onboard
+        blue LED blinking twice a second — the heartbeat that proves the code is alive.</p>
+        <p class="tip">Stuck at <span class="mono">Connecting……</span>? Hold the BOOT button
+        until upload starts. No port found at all → see troubleshooting below the bench.</p>
+      </div>
+
+      <div class="step codecard" data-ph="1" data-card="k1">
+        <div class="stitle"><input type="checkbox" id="k1"><label for="k1"><span class="nk">CODE</span> &nbsp;One loop, no waiting</label></div>
+        <p>Open <span class="mono">src/main.cpp</span> — the whole firmware is this pump,
+        run thousands of times per second:</p>
+        <div class="code"><span class="k">void</span> loop() {
+  buttons::poll();       <span class="c">// inputs…</span>
+  dispatchButtons();     <span class="c">// …routed to actions</span>
+  sensors::loop();
+  alarmfsm::loop();      <span class="c">// decisions</span>
+  relays::loop();
+  leds::loop();          <span class="c">// outputs</span>
+  display::loop();
+  net::loop();           <span class="c">// comms</span>
+  mqttlink::loop();
+  cli::loop();
+}</div>
+        <p>Every module gets a turn — <em>inputs → decisions → outputs → comms</em> — and
+        <strong>none of them is ever allowed to wait</strong>. There is no
+        <span class="mono">delay()</span> anywhere in this path: a module that has nothing
+        to do returns instantly. That one rule is why the siren, the sensors, and (later)
+        the web server can all share a single core without stepping on each other.</p>
+        <p class="tip"><strong>Try it:</strong> keep <span class="mono">pio device monitor</span>
+        open and press BTN1. The printed line comes from <span class="mono">leds::toggle()</span>,
+        called by <span class="mono">dispatchButtons()</span>, called from this loop — while the
+        heartbeat never misses a beat. That's the loop working.</p>
+      </div>
+
+      <div class="step codecard" data-ph="1" data-card="k2">
+        <div class="stitle"><input type="checkbox" id="k2"><label for="k2"><span class="nk">CODE</span> &nbsp;Reading a button properly</label></div>
+        <p>Open <span class="mono">src/buttons.cpp</span> — this is
+        <span class="mono">poll()</span>, the most instructive 14 lines in the repo:</p>
+        <div class="code"><span class="k">void</span> poll() {
+  uint32_t now = millis();
+  <span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; kCount; i++) {
+    events[i] = <span class="k">false</span>;
+    <span class="k">bool</span> reading = digitalRead(kPins[i]) == LOW;   <span class="c">// pressed = LOW (pullup!)</span>
+    <span class="k">if</span> (reading != lastReading[i]) {              <span class="c">// contact moved: restart clock</span>
+      lastChange[i] = now;
+      lastReading[i] = reading;
+    }
+    <span class="k">if</span> (now - lastChange[i] &gt; kDebounceMs &amp;&amp; reading != stable[i]) {
+      stable[i] = reading;                          <span class="c">// held steady 30 ms: accept it</span>
+      <span class="k">if</span> (stable[i]) events[i] = true;              <span class="c">// rising edge = one event</span>
+    }
+  }
+}</div>
+        <p>Three ideas fused: <strong>active-LOW</strong> (with <span class="mono">INPUT_PULLUP</span>
+        the pin rests HIGH and a press pulls it to GND — hence <span class="mono">== LOW</span>),
+        <strong>debouncing</strong> (a real button's contacts bounce for a few ms; ignore changes
+        until the reading holds steady), and <strong>edge detection</strong>
+        (<span class="mono">events[i]</span> is true for exactly one loop pass per press — hold
+        the button forever and it still fires once).</p>
+        <p class="tip"><strong>Try it:</strong> in <span class="mono">src/buttons.cpp</span> set
+        <span class="mono">kDebounceMs = 1</span>, reflash, and press buttons until one
+        double-fires (checkpoint box 2 breaks!). Then try <span class="mono">500</span> — feel
+        the lag. Restore <span class="mono">30</span>.</p>
+      </div>
+
+      <div class="step codecard" data-ph="1" data-card="k3">
+        <div class="stitle"><input type="checkbox" id="k3"><label for="k3"><span class="nk">CODE</span> &nbsp;Three timers, zero delay()</label></div>
+        <p>Open <span class="mono">src/leds.cpp</span>, function <span class="mono">loop()</span> —
+        three unrelated rhythms run side by side, each with its own last-time variable:</p>
+        <div class="code"><span class="k">if</span> (now - lastBlink &gt;= 500) {                 <span class="c">// timer 1: heartbeat, 2 Hz</span>
+  lastBlink = now;
+  digitalWrite(PIN_LED_ONBOARD, !digitalRead(PIN_LED_ONBOARD));
+}
+
+<span class="k">if</span> (app.party &amp;&amp; now - lastChase &gt;= 120) {    <span class="c">// timer 2: party chase</span>
+  lastChase = now;
+  <span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; 3; i++)
+    digitalWrite(kLedPins[i], i == chaseStep ? HIGH : LOW);
+  chaseStep = (chaseStep + 1) % 3;
+}
+<span class="c">// …timer 3 flashes the RGB at 250 ms when the siren fires (phase 3)</span></div>
+        <p>This is why <span class="mono">millis()</span> beats <span class="mono">delay()</span>:
+        the pattern <span class="mono">if (now - lastX &gt;= interval)</span> lets any number of
+        independent rates coexist. A single <span class="mono">delay(500)</span> for the
+        heartbeat would freeze the chase, the buttons, and everything else. Also worth a look
+        above: <span class="mono">kColors[]</span> — the RGB palette is a data table, not a
+        pile of if-statements.</p>
+        <p class="tip"><strong>Try it:</strong> change the heartbeat's <span class="mono">500</span>
+        to <span class="mono">100</span> and reflash — the chase speed doesn't change. Then add
+        your own color to <span class="mono">kColors[]</span> (e.g.
+        <span class="mono">{128, 0, 255, "purple"}</span>) and BTN4 through to it. Revert when done.</p>
+      </div>
+
+      <div class="checkpoint" data-ph="1">
+        <h3>✓ Phase 1 checkpoint</h3>
+        <p class="sub">All boxes must pass on real hardware before Phase 2. Watch the serial
+        monitor while you test.</p>
+        <div class="check"><input type="checkbox" id="c1"><label for="c1">Onboard LED heartbeats steadily, twice per second</label></div>
+        <div class="check"><input type="checkbox" id="c2"><label for="c2">BTN1 / BTN2 / BTN3 each toggle their LED — exactly one serial line per press, never two</label></div>
+        <div class="check"><input type="checkbox" id="c3"><label for="c3">BTN4 cycles RGB colors and the color you see matches the name printed</label></div>
+        <div class="check"><input type="checkbox" id="c4"><label for="c4">BTN5 steps through three brightness levels</label></div>
+        <div class="check"><input type="checkbox" id="c5"><label for="c5">BOOT button starts the LED chase; pressing again stops it</label></div>
+        <div class="check"><input type="checkbox" id="c6"><label for="c6">Holding a button doesn't repeat-fire; heartbeat never stutters</label></div>
+      </div>
+
+      <!-- ===== phases 2-4 shared intro ===== -->
+      <div class="phintro" data-ph="2 3 4">
+        <p><strong>Board 2 — the module farm.</strong> Clip board 2 to board 1's
+        <em>bottom</em> long edge — MB-102 boards interlock on their long sides — columns
+        aligned, exactly as drawn. Its top rails carry <strong>3V3 + ground</strong>, its
+        bottom rails <strong>5V (from VIN) + ground</strong>. Cross-board jumpers physically
+        run around the boards' sides, matching the dashed routes. The firmware is already
+        flashed and wakes up as each part is connected. Pick a step pill to see its card and
+        wiring; the dashed <span class="mono">&lt;/&gt;</span> pills open the matching code
+        lesson once that part works.</p>
+      </div>
+
+      <!-- ===== phase 2 ===== -->
+      <div class="step" data-ph="2" data-card="6">
+        <div class="stitle"><input type="checkbox" id="s6"><label for="s6"><span class="n">STEP 6</span> &nbsp;Power board 2</label></div>
+        <p>Four feeds bring power over from board 1 — after this, every module just taps the
+        rails:</p>
+        <div class="tblwrap"><table>
+          <tr><th>Feed</th><th>From</th><th>To (board 2)</th></tr>
+          <tr><td>3V3</td><td class="mono">board 1 hole B4 (under the 3V3 pin)</td><td class="mono">top + rail</td></tr>
+          <tr><td>ground</td><td class="mono">board 1 top − rail</td><td class="mono">top − rail</td></tr>
+          <tr><td>5V</td><td class="mono">hanging VIN pin (F-M)</td><td class="mono">bottom + rail</td></tr>
+          <tr><td>ground</td><td class="mono">board 1 bottom − rail</td><td class="mono">bottom − rail</td></tr>
+        </table></div>
+        <p class="tip">VIN carries the USB 5V — it exists only while the ESP32 is plugged in.
+        Verify with the probe trick: jumper from any board 2 − rail touched to
+        <span class="pinref">E12</span> on board 1 should print <span class="mono">red LED
+        toggled</span> — that proves the two boards share ground (they must).</p>
+      </div>
+
+      <div class="step" data-ph="2" data-card="7">
+        <div class="stitle"><input type="checkbox" id="s7"><label for="s7"><span class="n">STEP 7</span> &nbsp;OLED display</label></div>
+        <p>Plug the OLED's 4-pin header into board 2 row <span class="pinref">B</span>,
+        columns 5–8, then wire by silkscreen name:</p>
+        <div class="tblwrap"><table>
+          <tr><th>OLED pin</th><th>Connect</th></tr>
+          <tr><td class="mono">GND</td><td class="mono">its column, row C → board 2 top − rail</td></tr>
+          <tr><td class="mono">VCC</td><td class="mono">its column, row C → board 2 top + rail (3V3)</td></tr>
+          <tr><td class="mono">SCL</td><td class="mono">→ board 1 hole C17 (pin D22)</td></tr>
+          <tr><td class="mono">SDA</td><td class="mono">→ board 1 hole C14 (pin D21)</td></tr>
+        </table></div>
+        <p class="tip">Reboot after connecting — the firmware probes for the OLED at boot.
+        The moment it's found, <strong>full mode</strong> engages: BTN4 cycles pages, BTN5
+        arms the alarm, the RGB becomes the status light. Screen stays black → SDA/SCL
+        swapped is the usual suspect.</p>
+      </div>
+
+      <div class="step codecard" data-ph="2" data-card="k4">
+        <div class="stitle"><input type="checkbox" id="k4"><label for="k4"><span class="nk">CODE</span> &nbsp;One bool changes everything</label></div>
+        <p>Open <span class="mono">src/display.cpp</span>. In <span class="mono">begin()</span>,
+        one line decides the firmware's whole personality:</p>
+        <div class="code">app.displayFound = oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);  <span class="c">// false if no I2C ACK</span>
+
+<span class="k">void</span> loop() {
+  <span class="k">if</span> (!app.displayFound || millis() - lastDraw &lt; 250) <span class="k">return</span>;  <span class="c">// 4 fps is plenty</span>
+  lastDraw = millis();
+  oled.clearDisplay();          <span class="c">// 1. blank the framebuffer (in RAM)</span>
+  <span class="k">switch</span> (app.page) {           <span class="c">// 2. draw the current page onto it</span>
+    <span class="k">case</span> 0: pageEnv(); <span class="k">break</span>;
+    <span class="c">/* …light, alarm, automation, system */</span>
+  }
+  oled.display();               <span class="c">// 3. push the buffer over I2C</span>
+}</div>
+        <p>If the OLED never ACKs on the I²C bus, <span class="mono">begin()</span> returns
+        false and every module quietly falls back to phase-1 behavior — a missing part becomes
+        a mode, not a crash. The drawing itself is the standard <strong>framebuffer</strong>
+        idiom: you never draw "to the screen", you draw to a RAM buffer and ship it in one
+        transfer. The <span class="mono">&lt; 250</span> guard is the same non-blocking timer
+        pattern as the LEDs — redrawing faster would just waste loop time.</p>
+        <p class="tip"><strong>Try it:</strong> change <span class="mono">250</span> to
+        <span class="mono">1000</span>, reflash, and turn the pot — the numbers now visibly
+        stutter. Then pull the OLED's SDA wire and reboot: the serial banner says
+        <span class="mono">phase-1 (no OLED)</span> and BTN4 cycles colors again. Reconnect and revert.</p>
+      </div>
+
+      <div class="step" data-ph="2" data-card="8">
+        <div class="stitle"><input type="checkbox" id="s8"><label for="s8"><span class="n">STEP 8</span> &nbsp;DHT11, light sensor, potentiometer</label></div>
+        <div class="tblwrap"><table>
+          <tr><th>Part (board 2, row B)</th><th>Power</th><th>Signal</th></tr>
+          <tr><td>DHT11 · cols 14–16</td><td class="mono">VCC→+ · GND→−</td><td class="mono">DATA → board 1 C8 (pin D4)</td></tr>
+          <tr><td>LDR module · cols 22–24</td><td class="mono">VCC→+ · GND→−</td><td class="mono">AO → hanging D34 (F-M)</td></tr>
+          <tr><td>pot · cols 30/32/34</td><td class="mono">outer legs → + and −</td><td class="mono">wiper → hanging D35 (F-M)</td></tr>
+        </table></div>
+        <p class="tip">The pot's outer legs are interchangeable (swapping just reverses the
+        turn direction). Both analog signals go to hanging pins because GPIO 34/35 are the
+        ESP32's clean ADC inputs — the ones that keep working when WiFi is on.</p>
+      </div>
+
+      <div class="step codecard" data-ph="2" data-card="k5">
+        <div class="stitle"><input type="checkbox" id="k5"><label for="k5"><span class="nk">CODE</span> &nbsp;Smoothing an analog signal</label></div>
+        <p>Open <span class="mono">src/sensors.cpp</span> — 45 lines, and the densest file in
+        the repo:</p>
+        <div class="code"><span class="k">if</span> (app.simSensors) <span class="k">return</span>;  <span class="c">// CLI is injecting values — real sensors stand down</span>
+
+<span class="k">if</span> (now - lastDht &gt;= 2000) {   <span class="c">// DHT11 physically can't go faster</span>
+  <span class="k">float</span> t = dht.readTemperature();
+  <span class="k">if</span> (!isnan(t)) app.tempC = t;      <span class="c">// keep last good value on bad reads</span>
+}
+
+<span class="k">if</span> (now - lastAdc &gt;= 100) {
+  <span class="k">int</span> ldr = analogRead(PIN_LDR);
+  ldrEma = ldrEma &lt; 0 ? ldr : ldrEma * 0.8f + ldr * 0.2f;  <span class="c">// the magic line</span>
+  app.lightRaw = (<span class="k">int</span>)ldrEma;
+}</div>
+        <p>The "magic line" is an <strong>exponential moving average</strong>: each new reading
+        only moves the value 20% of the way — jitter cancels out, real changes still get
+        through. The <span class="mono">&lt; 0 ?</span> part self-seeds it on the first sample
+        (it starts at −1, an impossible ADC value). And note the DHT11 line: those sensors
+        fail reads routinely, so a failed read keeps the last good value instead of flashing
+        <span class="mono">nan</span> on the display. The <span class="mono">simSensors</span>
+        guard at the top is what makes the whole <span class="mono">sim</span> console work —
+        two lines of guard turn the firmware into its own simulator.</p>
+        <p class="tip"><strong>Try it:</strong> change <span class="mono">0.8f / 0.2f</span> to
+        <span class="mono">0.5f / 0.5f</span> — the light bar gets twitchy. Try
+        <span class="mono">0.98f / 0.02f</span> — now cover the LDR and watch it crawl. Restore
+        <span class="mono">0.8/0.2</span>. Bonus: type <span class="mono">sim light 300</span>
+        in the serial console and watch the real sensor get ignored.</p>
+      </div>
+
+      <div class="checkpoint" data-ph="2">
+        <h3>✓ Phase 2 checkpoint</h3>
+        <div class="check"><input type="checkbox" id="c21"><label for="c21">OLED shows pages; BTN4 cycles through all 5</label></div>
+        <div class="check"><input type="checkbox" id="c22"><label for="c22">Breathe on the DHT11 → humidity climbs within seconds</label></div>
+        <div class="check"><input type="checkbox" id="c23"><label for="c23">Cover the LDR → light page reading drops; uncover → recovers</label></div>
+        <div class="check"><input type="checkbox" id="c24"><label for="c24">Turning the pot moves the fan threshold on the AUTOMATION page smoothly</label></div>
+      </div>
+
+      <!-- ===== phase 3 ===== -->
+      <div class="step" data-ph="3" data-card="9">
+        <div class="stitle"><input type="checkbox" id="s9"><label for="s9"><span class="n">STEP 9</span> &nbsp;PIR + IR tripwire</label></div>
+        <div class="tblwrap"><table>
+          <tr><th>Part</th><th>Power</th><th>Signal</th></tr>
+          <tr><td>HC-SR501 PIR · board 2 row I, cols 8–10</td><td class="mono">VCC→<strong>bottom + (5V)</strong> · GND→−</td><td class="mono">OUT → hanging VN (F-F)</td></tr>
+          <tr><td>IR obstacle · board 2 row B, cols 40–42</td><td class="mono">VCC→top + (3V3) · GND→−</td><td class="mono">OUT → hanging VP (F-F)</td></tr>
+        </table></div>
+        <p class="tip">The PIR's two orange trim pots: left = sensitivity, right = hold time —
+        start both fully counter-clockwise. Its output is 3.3V even on 5V supply, so the
+        ESP32 is safe. It needs 60 s after power-up before it reports (the ALARM page shows
+        the warm-up). Aim the IR sensor across a doorway gap; its onboard pot sets range.</p>
+      </div>
+
+      <div class="step codecard" data-ph="3" data-card="k6">
+        <div class="stitle"><input type="checkbox" id="k6"><label for="k6"><span class="nk">CODE</span> &nbsp;The state machine</label></div>
+        <p>Open <span class="mono">include/state.h</span> (the five states) and
+        <span class="mono">src/alarm.cpp</span>. Every transition in the whole alarm goes
+        through one choke-point:</p>
+        <div class="code"><span class="k">void</span> setState(AlarmState s, <span class="k">const char</span>* why) {
+  app.alarm = s;
+  app.alarmSince = millis();          <span class="c">// stamp the entry time — this is the trick</span>
+  Serial.printf(<span class="c">"alarm: %s (%s)\n"</span>, alarmStateName(s), why);
+  <span class="k">if</span> (s == AlarmState::SIREN &amp;&amp; onSiren) onSiren(app.lastTrigger);
+}
+
+<span class="k">switch</span> (app.alarm) {                  <span class="c">// in loop(), every pass</span>
+  <span class="k">case</span> AlarmState::ARMING:
+    <span class="k">if</span> (now - app.alarmSince &gt;= kExitDelayMs)
+      setState(AlarmState::ARMED, <span class="c">"exit delay over"</span>);
+    <span class="k">break</span>;
+  <span class="c">/* …ARMED watches sensors, TRIGGERED counts down, SIREN warbles */</span>
+}</div>
+        <p><strong>State + entry timestamp = timed transitions.</strong> Because every state
+        change stamps <span class="mono">alarmSince</span>, any state can express "after N
+        seconds, move on" as one comparison — that's the entire exit-delay countdown. And
+        because every change passes through <span class="mono">setState()</span>, the serial
+        log narrates the machine for free. This shape — an enum, a switch, one mutator —
+        is the backbone of most embedded firmware you'll ever read.</p>
+        <p class="tip"><strong>Try it:</strong> in <span class="mono">include/config.h</span>
+        set <span class="mono">kExitDelayMs = 3000</span> for faster testing, and change
+        <span class="mono">kAlarmCode</span> to your own PIN. No PIR wired yet? Test the whole
+        machine from the console: <span class="mono">arm</span>, wait, <span class="mono">sim
+        motion</span>, watch TRIGGERED → SIREN, then disarm with the buttons: 3·1·2·4.</p>
+      </div>
+
+      <div class="step" data-ph="3" data-card="10">
+        <div class="stitle"><input type="checkbox" id="s10"><label for="s10"><span class="n">STEP 10</span> &nbsp;Buzzers</label></div>
+        <div class="tblwrap"><table>
+          <tr><th>Part (board 2, row I)</th><th>+ leg</th><th>− leg</th></tr>
+          <tr><td>passive buzzer · cols 20–21</td><td class="mono">→ hanging D25 (F-M)</td><td class="mono">→ bottom − rail</td></tr>
+          <tr><td>active buzzer · cols 26–27</td><td class="mono">→ hanging D26 (F-M)</td><td class="mono">→ bottom − rail</td></tr>
+        </table></div>
+        <p class="tip">Passive = plays tones (the siren); active = fixed beep (keypad clicks,
+        countdown). They look alike — passive usually has an exposed circuit board
+        underneath, active a sticker on top. Faint click instead of siren → they're swapped.
+        Board <em>resets</em> when the siren fires → the passive buzzer draws too much;
+        put a spare 220Ω in series with its + leg (quieter, but safe).</p>
+      </div>
+
+      <div class="step codecard" data-ph="3" data-card="k7">
+        <div class="stitle"><input type="checkbox" id="k7"><label for="k7"><span class="nk">CODE</span> &nbsp;Two buzzers, two techniques</label></div>
+        <p>Still in <span class="mono">src/alarm.cpp</span> — the kit's two buzzers need
+        opposite treatment, and both are here:</p>
+        <div class="code"><span class="k">void</span> beep(uint32_t ms) {              <span class="c">// ACTIVE buzzer: just switch it on…</span>
+  digitalWrite(PIN_BUZZER_ACTIVE, HIGH);
+  beepUntil = millis() + ms;          <span class="c">// …and set a deadline; loop() switches it off</span>
+}
+
+<span class="k">case</span> AlarmState::SIREN:               <span class="c">// PASSIVE buzzer: needs a real waveform</span>
+  <span class="k">if</span> (now - lastSirenStep &gt;= 350) {
+    lastSirenStep = now;
+    sirenHigh = !sirenHigh;
+    tone(sirenHigh ? 2400 : 1600);    <span class="c">// two tones alternating = the warble</span>
+  }</div>
+        <p>The active buzzer has its own oscillator — a HIGH pin is a fixed beep. The passive
+        one is a bare speaker: <span class="mono">tone()</span> (LEDC PWM under the hood) must
+        generate the frequency, which is why it can sweep and warble. Note
+        <span class="mono">beep()</span> never waits — it books a deadline and returns; the top
+        of <span class="mono">loop()</span> reaps it. One more line worth finding:
+        <span class="mono">app.pirMotion = now &gt; kPirWarmupMs &amp;&amp; …</span> — the HC-SR501
+        emits garbage for its first minute, so the code simply refuses to listen until then.
+        The datasheet is part of the program.</p>
+        <p class="tip"><strong>Try it:</strong> retune the siren — swap
+        <span class="mono">2400 / 1600</span> for your own pair (try 900/600 for a European
+        two-tone). Then a puzzle: the ARMING chirp line
+        <span class="mono">(now - app.alarmSince) % 1000 &lt; 30</span> is subtly fragile —
+        can you see why? (Hint: what if no loop pass lands inside the 30 ms window?) The
+        <span class="mono">lastX</span> pattern used everywhere else can't miss.</p>
+      </div>
+
+      <div class="checkpoint" data-ph="3">
+        <h3>✓ Phase 3 checkpoint</h3>
+        <div class="check"><input type="checkbox" id="c31"><label for="c31">BTN5 arms: countdown beeps, RGB yellow → red at ARMED</label></div>
+        <div class="check"><input type="checkbox" id="c32"><label for="c32">Walking past the PIR while armed starts the entry countdown; siren after 8 s</label></div>
+        <div class="check"><input type="checkbox" id="c33"><label for="c33">Code 3·1·2·4 silences it; three wrong codes fire the siren immediately</label></div>
+        <div class="check"><input type="checkbox" id="c34"><label for="c34">Blocking the IR sensor triggers independently of the PIR</label></div>
+      </div>
+
+      <!-- ===== phase 4 ===== -->
+      <div class="step" data-ph="4" data-card="11">
+        <div class="stitle"><input type="checkbox" id="s11"><label for="s11"><span class="n">STEP 11</span> &nbsp;Relay module + loads</label></div>
+        <div class="tblwrap"><table>
+          <tr><th>Relay pin (board 2 row I, cols 46–49)</th><th>Connect</th></tr>
+          <tr><td class="mono">VCC</td><td class="mono">bottom + rail (5V)</td></tr>
+          <tr><td class="mono">GND</td><td class="mono">bottom − rail</td></tr>
+          <tr><td class="mono">IN1 (lamp)</td><td class="mono">→ board 1 C9 (pin RX2 / GPIO16)</td></tr>
+          <tr><td class="mono">IN2 (fan)</td><td class="mono">→ board 1 C10 (pin TX2 / GPIO17)</td></tr>
+        </table></div>
+        <p>Loads on the screw terminals: <span class="pinref">COM</span> +
+        <span class="pinref">NO</span> in series with the load's supply.
+        <strong>Low voltage only</strong> — a 12V LED strip or USB fan. No mains, ever.</p>
+        <p class="tip">Rules already live: lamp = dark + motion within 5 min while disarmed;
+        fan = temp above the pot threshold (1°C hysteresis, 30 s dwell). On the AUTOMATION
+        page BTN1/BTN2 cycle each relay auto → on → off. From this phase on, power the bench
+        from a <strong>1A+ phone charger</strong> — relay coils plus WiFi can brown-out a
+        laptop port. A relay that hums or stays weakly on is the classic 3.3V-logic-vs-5V
+        mismatch — tell Claude, two-minute fix.</p>
+      </div>
+
+      <div class="step codecard" data-ph="4" data-card="k8">
+        <div class="stitle"><input type="checkbox" id="k8"><label for="k8"><span class="nk">CODE</span> &nbsp;Hysteresis, or the relay chatters</label></div>
+        <p>Open <span class="mono">src/relays.cpp</span>, <span class="mono">loop()</span> —
+        the same idea in two shapes, back to back:</p>
+        <div class="code"><span class="c">// dark detection — LATCH style: different thresholds to enter and leave</span>
+<span class="k">if</span> (!darkLatch &amp;&amp; app.lightRaw &lt; kDarkThreshold) darkLatch = <span class="k">true</span>;
+<span class="k">if</span> (darkLatch &amp;&amp; app.lightRaw &gt; kDarkThreshold + kDarkHysteresis) darkLatch = <span class="k">false</span>;
+
+<span class="c">// fan — SETPOINT style: seeded from the CURRENT output, so between the</span>
+<span class="c">// two thresholds nothing changes</span>
+<span class="k">bool</span> fanWant = app.relayOn[1];
+<span class="k">if</span> (app.tempC &gt; app.fanThreshC) fanWant = <span class="k">true</span>;
+<span class="k">if</span> (app.tempC &lt; app.fanThreshC - kFanHysteresisC) fanWant = <span class="k">false</span>;</div>
+        <p>A sensor value hovering exactly at one threshold would flip the relay on and off
+        every loop pass — audible, and hard on the hardware. Hysteresis opens a dead band:
+        the value must travel <em>past</em> the far edge to switch back. As a second seatbelt,
+        <span class="mono">drive()</span> enforces <span class="mono">kRelayMinDwellMs</span>
+        (30 s) between physical switches — software rules protecting a mechanical part. The
+        lamp rule right between the two excerpts is also worth reading: it's one boolean that
+        reads exactly like the English sentence describing it.</p>
+        <p class="tip"><strong>Try it (the best demo in the project):</strong> in
+        <span class="mono">config.h</span> set <span class="mono">kDarkHysteresis = 0</span>
+        and <span class="mono">kRelayMinDwellMs = 1000</span>, reflash, then hover the light
+        level around the threshold from the console — alternate <span class="mono">sim light
+        1195</span> / <span class="mono">sim light 1205</span> (with <span class="mono">sim
+        motion</span> to satisfy the lamp rule). Hear the chatter. Restore both values and
+        it's gone. Now you know why every thermostat on Earth has a dead band.</p>
+      </div>
+
+      <div class="checkpoint" data-ph="4">
+        <h3>✓ Phase 4 checkpoint</h3>
+        <div class="check"><input type="checkbox" id="c41"><label for="c41">Cover the LDR + wave at the PIR → lamp relay clicks on</label></div>
+        <div class="check"><input type="checkbox" id="c42"><label for="c42">Pot below room temp → fan on; above → off after the dwell, no chatter</label></div>
+        <div class="check"><input type="checkbox" id="c43"><label for="c43">Manual override from the AUTOMATION page survives the rules</label></div>
+      </div>
+
+      <!-- ===== phases 5/6 pane note ===== -->
+      <!-- ===== phase 5 ===== -->
+      <div class="phintro" data-ph="5">
+        <p><strong>Phase 5 — WiFi, dashboard, notifications.</strong> No wiring — the bench
+        shows the completed build. Configuration only, and the device must keep working with
+        no WiFi at all: the network is an enhancement, never a dependency.</p>
+      </div>
+
+      <div class="step" data-ph="5">
+        <div class="stitle"><input type="checkbox" id="s12"><label for="s12"><span class="n">STEP 12</span> &nbsp;WiFi, dashboard, phone notifications</label></div>
+        <div class="term">
+          <span class="p">$</span> cp include/secrets.example.h include/secrets.h<br>
+          <span class="p">$</span> open -e include/secrets.h <span class="c"># fill in WIFI_SSID / WIFI_PASS</span><br>
+          <span class="p">$</span> pio run -t upload
+        </div>
+        <p>The serial monitor prints the IP; the dashboard lives at
+        <span class="pinref">http://room-guardian.local</span> — live readings, arm/disarm
+        with the code, relay control from your phone (same WiFi). For push notifications:
+        uncomment <span class="pinref mono">NTFY_TOPIC</span> in secrets.h, pick a long
+        random topic name, install the ntfy app and subscribe to that topic. Test from the
+        serial console: <span class="pinref mono">notify hello</span>.</p>
+        <p class="tip">secrets.h is git-ignored — credentials never leave your machine. The
+        SYSTEM page now shows a real clock (NTP) instead of uptime.</p>
+      </div>
+
+      <div class="step codecard" data-ph="5">
+        <div class="stitle"><input type="checkbox" id="k9"><label for="k9"><span class="nk">CODE</span> &nbsp;WiFi without blocking</label></div>
+        <p>Open <span class="mono">src/net.cpp</span>. Most tutorials connect like this:
+        <span class="mono">while (WiFi.status() != WL_CONNECTED) delay(500);</span> — freezing
+        the whole device until the router answers. This firmware refuses:</p>
+        <div class="code"><span class="k">void</span> loop() {
+  <span class="k">bool</span> up = WiFi.status() == WL_CONNECTED;
+  <span class="k">if</span> (up &amp;&amp; !app.wifiUp) {           <span class="c">// rising edge: we JUST connected</span>
+    MDNS.begin(kHostname);            <span class="c">// …do the one-time setup now</span>
+    configTzTime(kTz, <span class="c">"pool.ntp.org"</span>);
+    <span class="k">if</span> (!serverUp) startServer();
+  }
+  app.wifiUp = up;
+
+  <span class="k">if</span> (!up &amp;&amp; millis() - lastAttempt &gt; 15000) {  <span class="c">// retry without blocking</span>
+    lastAttempt = millis();
+    WiFi.begin(WIFI_SSID, WIFI_PASS);
+  }
+}</div>
+        <p>Same edge-detection idea as the buttons, applied to the radio: compare the current
+        status with the remembered one, and run connect-time work exactly once on the rising
+        edge. The alarm keeps arming, the sensors keep reading, and the network joins whenever
+        it joins. Two more patterns worth finding in this file:
+        <span class="mono">#if __has_include("secrets.h")</span> at the top compiles the whole
+        module down to three empty stubs when there are no credentials (that's why phases 1–4
+        never mention WiFi), and <span class="mono">notify()</span> never touches the network —
+        it queues the message and lets <span class="mono">loop()</span> send it later,
+        rate-limited.</p>
+        <p class="tip"><strong>Try it:</strong> change <span class="mono">kHostname</span> in
+        <span class="mono">config.h</span> and your dashboard moves to
+        <span class="mono">http://&lt;newname&gt;.local</span>. Then kill your router's WiFi
+        mid-session and watch the serial log: the device shrugs, keeps running, reconnects
+        alone. That resilience is this loop.</p>
+      </div>
+
+      <div class="checkpoint" data-ph="5">
+        <h3>✓ Phase 5 checkpoint</h3>
+        <div class="check"><input type="checkbox" id="c51"><label for="c51">Phone loads the dashboard and can arm/disarm with the code</label></div>
+        <div class="check"><input type="checkbox" id="c52"><label for="c52">Router off → device keeps running; router back → reconnects by itself</label></div>
+        <div class="check"><input type="checkbox" id="c53"><label for="c53">Tripping the siren buzzes your phone via ntfy</label></div>
+      </div>
+
+      <!-- ===== phase 6 ===== -->
+      <div class="phintro" data-ph="6">
+        <p><strong>Phase 6 — MQTT + Home Assistant.</strong> No wiring — configuration only.
+        The Guardian becomes a first-class smart-home node.</p>
+      </div>
+
+      <div class="step" data-ph="6">
+        <div class="stitle"><input type="checkbox" id="s13"><label for="s13"><span class="n">STEP 13</span> &nbsp;Broker + discovery</label></div>
+        <div class="term">
+          <span class="p">$</span> brew install mosquitto &amp;&amp; brew services start mosquitto <span class="c"># or use the HA add-on</span>
+        </div>
+        <p>Uncomment the <span class="pinref mono">MQTT_HOST</span> block in secrets.h (your
+        broker's IP), re-flash. The device publishes Home Assistant discovery messages —
+        every sensor, the alarm state, and both relays appear as entities automatically, no
+        YAML. Availability tracking included: pull the ESP32's power and HA marks it
+        unavailable.</p>
+      </div>
+
+      <div class="step codecard" data-ph="6">
+        <div class="stitle"><input type="checkbox" id="k10"><label for="k10"><span class="nk">CODE</span> &nbsp;Speaking MQTT</label></div>
+        <p>Open <span class="mono">src/mqttlink.cpp</span>. The most elegant two lines in the
+        whole project are the connect call:</p>
+        <div class="code"><span class="c">// LWT: HA marks the device unavailable if we drop off</span>
+<span class="k">if</span> (mqtt.connect(<span class="c">"room-guardian"</span>, MQTT_USER, MQTT_PASSWORD,
+                 <span class="c">"rg/availability"</span>, 0, <span class="k">true</span>, <span class="c">"offline"</span>)) {
+  mqtt.publish(<span class="c">"rg/availability"</span>, <span class="c">"online"</span>, <span class="k">true</span>);  <span class="c">// retained</span>
+  mqtt.subscribe(<span class="c">"rg/relay1/set"</span>);
+  <span class="c">/* …relay2, alarm */</span>
+}
+
+<span class="k">if</span> (millis() - lastPublish &gt;= 10000) {   <span class="c">// state out, every 10 s</span>
+  lastPublish = millis();
+  mqtt.publish(<span class="c">"rg/state"</span>, net::statusJson().c_str());
+}</div>
+        <p>The extra connect arguments are a <strong>Last Will &amp; Testament</strong>: you
+        tell the broker, in advance, what to announce if you die. Pull the ESP32's power and
+        the broker itself publishes <span class="mono">offline</span> — Home Assistant greys
+        the device out with zero polling. The reconnect logic above it is the same
+        non-blocking shape as WiFi's (third time you've seen it now). The one part not worth
+        reading line-by-line is <span class="mono">publishDiscovery()</span>: it publishes one
+        retained JSON config per entity so HA auto-creates them — JSON inside C strings inside
+        Jinja templates. Trust the summary.</p>
+        <p class="tip"><strong>Try it:</strong> drop the publish interval from
+        <span class="mono">10000</span> to <span class="mono">2000</span> and watch the HA
+        entities update faster. Then run the LWT experiment for real: pull the USB cable and
+        watch HA grey out. That's the broker keeping your promise.</p>
+      </div>
+
+      <div class="checkpoint" data-ph="6">
+        <h3>✓ Phase 6 checkpoint — project complete</h3>
+        <div class="check"><input type="checkbox" id="c61"><label for="c61">Guardian entities visible in Home Assistant; an HA automation (e.g. notify on motion) works end-to-end</label></div>
+        <div class="check"><input type="checkbox" id="c62"><label for="c62">Unplugging the ESP32 marks the device unavailable in HA</label></div>
+      </div>
+    </div>
+  </div>
+  </div><!-- /benchzone -->
+
+  <!-- ================= help ================= -->
+  <section data-phase="help">
+  <h2>The three commands</h2>
+  <p class="sub">Everything happens in the terminal, from the project folder
+  (<span class="pinref">~/Documents/esp32</span>).</p>
+  <div class="term" role="region" aria-label="Terminal commands">
+    <span class="p">$</span> pio run <span class="c"># compile — catches mistakes before touching hardware</span><br>
+    <span class="p">$</span> pio run -t upload <span class="c"># flash the board over USB</span><br>
+    <span class="p">$</span> pio device monitor <span class="c"># watch serial output · Ctrl+C exits</span>
+  </div>
+
+  <h2>The serial console</h2>
+  <p class="sub">The firmware contains <em>all six phases</em> and adapts to whatever
+  hardware it finds (no OLED → buttons behave exactly as the phase 1 checkpoint expects).
+  The console lets you drive and simulate everything before the hardware exists:</p>
+  <div class="term">
+    <span class="p">&gt;</span> help <span class="c"># list all commands</span><br>
+    <span class="p">&gt;</span> status <span class="c"># full device state as JSON</span><br>
+    <span class="p">&gt;</span> sim temp 31 <span class="c"># fake a heatwave — watch the fan rule fire</span><br>
+    <span class="p">&gt;</span> arm <span class="c"># then: sim motion → entry countdown → siren</span><br>
+    <span class="p">&gt;</span> disarm <span class="c"># silence it (buttons: 3·1·2·4 = the real code)</span><br>
+    <span class="p">&gt;</span> relay 1 on <span class="c"># force the lamp relay; 'relay 1 auto' returns to rules</span>
+  </div>
+  <p class="sub">Every <span class="mono">&lt;/&gt;</span> code experiment is safely revertable:
+  undo in your editor, or <span class="mono">git checkout -- src/&lt;file&gt;</span> restores
+  the original. Break things freely — that's the point.</p>
+
+  <h2>When it doesn't work</h2>
+  <p class="sub">It won't all work first try — that's normal and it's where the learning is.</p>
+  <details><summary>No serial port / upload can't find the board</summary>
+    <p>Run <span class="mono">pio device list</span>. Empty list → either the USB cable is
+    charge-only (very common — try another) or macOS lacks the USB-serial driver. Most kit
+    boards use a <strong>CH340</strong> or <strong>CP2102</strong> chip; install the matching
+    driver, replug, check again.</p></details>
+  <details><summary>An LED stays dark</summary>
+    <p>Suspects in order: the flying jumper's female end not fully seated on the hanging pin,
+    LED backwards (long leg must face the resistor), resistor and LED leg not sharing a
+    column, or the jumper on the wrong hanging pin — recount from the USB end and check the
+    printed name. Quick test: pull that LED's flying jumper off its hanging pin and touch the
+    male end into <span class="mono">B4</span> (the seated 3V3 pin's column) — the LED should
+    light immediately. If it does, everything downstream is fine and the source pin was
+    wrong.</p></details>
+  <details><summary>RGB shows the wrong colors</summary>
+    <p>The LED is flipped — longest leg must be in B35 — or two flying jumpers are swapped on
+    the hanging row. If colors appear when they should be <em>off</em> and vice versa, your
+    kit has a common-<strong>anode</strong> RGB: tell Claude, it's a two-line code fix.</p></details>
+  <details><summary>A button fires twice, constantly, or never</summary>
+    <p>Constantly pressed → rotated 90° (see Step 4 tip). Never fires → a leg isn't reaching
+    its hole, or the signal wire is on the wrong column. Double-fires → tell Claude; the
+    debounce window may need widening for your switches.</p></details>
+  <details><summary>Serial monitor prints garbage</summary>
+    <p>Baud mismatch. The project sets 115200 in <span class="mono">platformio.ini</span>, so a
+    plain <span class="mono">pio device monitor</span> is correct — a burst of gibberish
+    <em>only at reset</em> is the bootloader talking at 74880 and is harmless.</p></details>
+  <details><summary>Board resets when I press BTN5 or BOOT at the wrong time</summary>
+    <p>GPIO15 and GPIO0 are "strapping pins" the chip reads at power-on to decide how to boot.
+    Held down <em>during a reset</em> they change boot mode; pressed while running they're
+    ordinary buttons. Just don't hold them while plugging in.</p></details>
+  </section>
+
+  <footer>
+    Full six-phase firmware is flashed and hardware-adaptive. Progress and your active tab
+    are saved in this browser. · Room Guardian build guide
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  // ---------- geometry ----------
+  var NS = 'http://www.w3.org/2000/svg';
+  var svg = document.getElementById('bb');
+  var cur = svg;
+  var ML = 44, PITCH = 14;
+  var B2Y = 318;
+  function X(c) { return ML + (c - 0.5) * PITCH; }
+  var ROWY = { A: 70, B: 84, C: 98, D: 112, E: 126, F: 154, G: 168, H: 182, I: 196, J: 210 };
+  var RAILY = { 'T-': 34, 'T+': 48, 'B+': 234, 'B-': 248 };
+  var HANGY = -42;
+  var GND = 'var(--wire-gnd)';
+  var PWR = '#cf3f36';
+
+  function el(tag, attrs, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) if (attrs[k] !== null && attrs[k] !== undefined) e.setAttribute(k, attrs[k]);
+    (parent || cur).appendChild(e);
+    return e;
+  }
+  function txt(s, x, y, attrs, parent) {
+    var a = { x: x, y: y, 'font-family': 'ui-monospace, SF Mono, Menlo, monospace' };
+    for (var k in attrs) a[k] = attrs[k];
+    var e = el('text', a, parent);
+    e.textContent = s;
+    return e;
+  }
+  function pt(spec) {
+    if (typeof spec === 'string') return { x: X(parseInt(spec.slice(1), 10)), y: ROWY[spec[0]] };
+    return { x: X(spec.c), y: RAILY[spec.rail] };
+  }
+  function pt2(spec) {
+    var p = pt(spec);
+    return { x: p.x, y: p.y + B2Y };
+  }
+  function hang(col) { return { x: X(col), y: -46 }; }
+
+  // ---------- board base ----------
+  function drawBase(railLabels) {
+    el('rect', { x: 26, y: 8, width: 900, height: 262, rx: 10, fill: 'var(--bb)', stroke: 'var(--bb-edge)', 'stroke-width': 1.5 });
+    el('rect', { x: 26, y: 133, width: 900, height: 14, fill: 'var(--bb-trench)' });
+    el('line', { x1: 40, y1: 26, x2: 912, y2: 26, stroke: '#4a7ab5', 'stroke-width': 2 });
+    el('line', { x1: 40, y1: 56, x2: 912, y2: 56, stroke: '#c0504a', 'stroke-width': 2 });
+    el('line', { x1: 40, y1: 226, x2: 912, y2: 226, stroke: '#c0504a', 'stroke-width': 2 });
+    el('line', { x1: 40, y1: 256, x2: 912, y2: 256, stroke: '#4a7ab5', 'stroke-width': 2 });
+    ['T-', 'T+', 'B+', 'B-'].forEach(function (k, i) {
+      var y = [37, 51, 237, 251][i];
+      var col = k[1] === '-' ? '#4a7ab5' : '#c0504a';
+      txt(railLabels[k], 40, y, { 'font-size': railLabels[k].length > 1 ? 8 : 11, fill: col, 'font-weight': 700, 'text-anchor': 'end' });
+      txt(railLabels[k], 914, y, { 'font-size': railLabels[k].length > 1 ? 8 : 11, fill: col, 'font-weight': 700 });
+    });
+    var c, r;
+    for (c = 2; c <= 62; c++) {
+      if ((c - 2) % 6 === 5) continue;
+      ['T-', 'T+', 'B+', 'B-'].forEach(function (k) {
+        el('circle', { cx: X(c), cy: RAILY[k], r: 2.1, fill: 'var(--hole)' });
+      });
+    }
+    for (c = 1; c <= 63; c++) {
+      for (r in ROWY) el('circle', { cx: X(c), cy: ROWY[r], r: 2.1, fill: 'var(--hole)' });
+    }
+    for (r in ROWY) {
+      txt(r, 33, ROWY[r] + 3, { 'font-size': 8.5, fill: 'var(--muted)', 'text-anchor': 'middle' });
+      txt(r, 919, ROWY[r] + 3, { 'font-size': 8.5, fill: 'var(--muted)', 'text-anchor': 'middle' });
+    }
+    for (c = 5; c <= 60; c += 5) {
+      txt(String(c), X(c), 20, { 'font-size': 8.5, fill: 'var(--muted)', 'text-anchor': 'middle' });
+      txt(String(c), X(c), 267, { 'font-size': 8.5, fill: 'var(--muted)', 'text-anchor': 'middle' });
+    }
+  }
+  drawBase({ 'T-': '−', 'T+': '+', 'B+': '+', 'B-': '−' });
+  txt('BOARD 1', 476, 2, { 'font-size': 9, fill: 'var(--muted)', 'text-anchor': 'middle', 'letter-spacing': '.2em' });
+
+  txt('boards clip together here — long edges interlock, columns aligned', 476, B2Y - 20, { 'font-size': 9, fill: 'var(--muted)', 'text-anchor': 'middle' });
+  [200, 476, 752].forEach(function (x) {
+    el('rect', { x: x - 12, y: 272, width: 24, height: B2Y - 266, rx: 3, fill: 'none', stroke: 'var(--bb-edge)', 'stroke-width': 1.2, 'stroke-dasharray': '3 3' });
+  });
+
+  // ---------- ESP32 module ----------
+  var bx1 = X(3) - 6, bx2 = X(19) + 6;
+  el('rect', { x: bx1 - 20, y: -4, width: 22, height: 32, rx: 3, fill: 'var(--esp-edge)' });
+  txt('USB', bx1 - 16, 15, { 'font-size': 7, fill: 'var(--esp-ink)' });
+  el('rect', { x: bx1, y: -58, width: bx2 - bx1, height: 134, rx: 8, fill: 'var(--esp)', stroke: 'var(--esp-edge)', 'stroke-width': 1.5 });
+  el('rect', { x: bx2 - 34, y: -50, width: 26, height: 118, rx: 4, fill: 'none', stroke: 'var(--esp-ink)', 'stroke-width': 1, 'stroke-dasharray': '3 3', opacity: 0.6 });
+  txt('ANT', bx2 - 27, 14, { 'font-size': 7, fill: 'var(--esp-ink)', opacity: 0.8 });
+  txt('ESP32 DEVKIT', (bx1 + bx2) / 2 - 14, 16, { 'font-size': 9, fill: 'var(--esp-ink)', 'text-anchor': 'middle', 'letter-spacing': '.12em' });
+  el('rect', { x: bx1 + 8, y: -52, width: 13, height: 13, rx: 2, fill: 'var(--surface2)', stroke: 'var(--esp-ink)', 'stroke-width': 0.8 });
+  txt('EN', bx1 + 14.5, -42.5, { 'font-size': 6, fill: 'var(--esp-edge)', 'text-anchor': 'middle', 'font-weight': 700 });
+  el('rect', { x: bx1 + 8, y: 52, width: 13, height: 13, rx: 2, fill: 'var(--surface2)', stroke: 'var(--accent)', 'stroke-width': 1.2 });
+  txt('BOOT = BTN6', bx1 + 26, 62, { 'font-size': 7, fill: 'var(--accent)', 'font-weight': 700 });
+
+  var HANG = ['VIN', 'GND', 'D13', 'D12', 'D14', 'D27', 'D26', 'D25', 'D33', 'D32', 'D35', 'D34', 'VN', 'VP', 'EN'];
+  var SEAT = ['3V3', 'GND', 'D15', 'D2', 'D4', 'RX2', 'TX2', 'D5', 'D18', 'D19', 'D21', 'RX0', 'TX0', 'D22', 'D23'];
+  var HOT = { GND: 1, VIN: 1, D13: 1, D12: 1, D14: 1, D27: 1, D26: 1, D25: 1, D33: 1, D32: 1, D35: 1, D34: 1, VN: 1, VP: 1, '3V3': 1, D15: 1, D4: 1, RX2: 1, TX2: 1, D5: 1, D18: 1, D19: 1, D21: 1, D22: 1, D23: 1 };
+  HANG.forEach(function (name, i) {
+    var x = X(4 + i);
+    el('rect', { x: x - 2, y: HANGY - 6, width: 4, height: 12, fill: 'var(--pin-gold)' });
+    var t = txt(name, 0, 0, { 'font-size': 7.5, fill: HOT[name] ? 'var(--accent)' : 'var(--esp-ink)', 'font-weight': HOT[name] ? 700 : 400 });
+    t.setAttribute('transform', 'translate(' + (x + 2.5) + ',' + (HANGY + 10) + ') rotate(90)');
+  });
+  SEAT.forEach(function (name, i) {
+    var x = X(4 + i);
+    el('rect', { x: x - 2.5, y: ROWY.A - 2.5, width: 5, height: 5, fill: 'var(--pin-gold)' });
+    var t = txt(name, 0, 0, { 'font-size': 7.5, fill: HOT[name] ? 'var(--accent)' : 'var(--esp-ink)', 'font-weight': HOT[name] ? 700 : 400 });
+    t.setAttribute('transform', 'translate(' + (x - 2.5) + ',' + (ROWY.A - 10) + ') rotate(-90)');
+  });
+  txt('↑ this row hangs past the edge — connect via female jumper ends', bx2 + 12, HANGY + 2, { 'font-size': 8, fill: 'var(--muted)' });
+
+  // ---------- board 2 base ----------
+  var g2root = el('g', { transform: 'translate(0,' + B2Y + ')' });
+  cur = g2root;
+  drawBase({ 'T-': 'GND', 'T+': '3V3', 'B+': '5V', 'B-': 'GND' });
+  txt('BOARD 2 — module farm', 476, 2, { 'font-size': 9, fill: 'var(--muted)', 'text-anchor': 'middle', 'letter-spacing': '.2em' });
+  cur = svg;
+
+  // ---------- drawing helpers ----------
+  var WHITE = 'white';
+  function stroke(g, d, color, dashed) {
+    var dash = dashed ? '6 4' : null;
+    if (color === WHITE) {
+      el('path', { d: d, fill: 'none', stroke: '#9a978c', 'stroke-width': 3.6, 'stroke-linecap': 'round', 'stroke-dasharray': dash }, g);
+      el('path', { d: d, fill: 'none', stroke: '#f4f2ea', 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-dasharray': dash }, g);
+    } else {
+      el('path', { d: d, fill: 'none', stroke: color, 'stroke-width': 2.3, 'stroke-linecap': 'round', 'stroke-dasharray': dash }, g);
+    }
+  }
+  function dotColor(color) { return color === WHITE ? '#c9c6ba' : color; }
+  function wirePath(p1, p2, bend) {
+    if (Math.abs(p1.x - p2.x) < 2) {
+      return { d: 'M' + p1.x + ' ' + p1.y + ' L' + p2.x + ' ' + p2.y, mx: p1.x, my: (p1.y + p2.y) / 2 };
+    }
+    var h = Math.min(46, 14 + Math.abs(p2.x - p1.x) * 0.14);
+    var cy = bend === 'down' ? Math.max(p1.y, p2.y) + h : Math.min(p1.y, p2.y) - h;
+    var cx = (p1.x + p2.x) / 2;
+    return {
+      d: 'M' + p1.x + ' ' + p1.y + ' Q' + cx + ' ' + cy + ' ' + p2.x + ' ' + p2.y,
+      mx: 0.25 * p1.x + 0.5 * cx + 0.25 * p2.x,
+      my: 0.25 * p1.y + 0.5 * cy + 0.25 * p2.y
+    };
+  }
+  function wire(g, a, b, color, bend) {
+    var w = wirePath(pt(a), pt(b), bend);
+    stroke(g, w.d, color);
+    [a, b].forEach(function (s) {
+      var p = pt(s);
+      el('circle', { cx: p.x, cy: p.y, r: 2.6, fill: dotColor(color) }, g);
+    });
+  }
+  function flyLead(g, hangCol, land, color) {
+    var x1 = X(hangCol), p2 = pt(land);
+    el('rect', { x: x1 - 3, y: HANGY + 4, width: 6, height: 10, rx: 1.5, fill: '#1c1c1c' }, g);
+    var d = 'M' + x1 + ' ' + (HANGY + 14) + ' C' + x1 + ' ' + (HANGY + 84) + ', ' + p2.x + ' ' + (p2.y - 70) + ', ' + p2.x + ' ' + p2.y;
+    stroke(g, d, color, true);
+    el('circle', { cx: p2.x, cy: p2.y, r: 2.6, fill: dotColor(color) }, g);
+  }
+  function resistor(g, a, b) {
+    var w = wirePath(pt(a), pt(b), 'up');
+    el('path', { d: w.d, fill: 'none', stroke: '#8a8574', 'stroke-width': 1.8, 'stroke-linecap': 'round' }, g);
+    el('rect', { x: w.mx - 10, y: w.my - 4, width: 20, height: 8, rx: 2.5, fill: '#d9c9a3', stroke: '#8a8574', 'stroke-width': 0.8 }, g);
+    ['#c0504a', '#c0504a', '#6b4a2f', '#c9a227'].forEach(function (band, i) {
+      el('rect', { x: w.mx - 7 + i * 4, y: w.my - 4, width: 2.2, height: 8, fill: band }, g);
+    });
+    [a, b].forEach(function (s) {
+      var p = pt(s);
+      el('circle', { cx: p.x, cy: p.y, r: 2.4, fill: '#8a8574' }, g);
+    });
+  }
+  function led(g, colA, railCol, color) {
+    var xa = X(colA), xk = X(railCol), xm = (xa + xk) / 2, yB = ROWY.B, yRail = RAILY['T-'];
+    el('line', { x1: xa, y1: yB, x2: xm - 2, y2: 66, stroke: color, 'stroke-width': 1.6 }, g);
+    el('line', { x1: xm + 2, y1: 54, x2: xk, y2: yRail, stroke: color, 'stroke-width': 1.6 }, g);
+    el('circle', { cx: xm, cy: 60, r: 6.5, fill: color, stroke: 'rgba(0,0,0,.35)', 'stroke-width': 1 }, g);
+    el('circle', { cx: xm - 2, cy: 58, r: 1.8, fill: 'rgba(255,255,255,.65)' }, g);
+    txt('+', xa - 6, ROWY.B + 3, { 'font-size': 8, fill: color, 'font-weight': 700 }, g);
+    el('circle', { cx: xa, cy: yB, r: 2.4, fill: color }, g);
+    el('circle', { cx: xk, cy: yRail, r: 2.4, fill: color }, g);
+  }
+  function modBox(g, cols, side, name, pinLabels) {
+    var x1 = X(cols[0]) - 8, x2 = X(cols[cols.length - 1]) + 8;
+    var top = side === 'top';
+    var by = top ? 50 : 202, bh = 28;
+    cols.forEach(function (col) {
+      var py = top ? ROWY.B : ROWY.I;
+      el('line', { x1: X(col), y1: top ? by + bh : py, x2: X(col), y2: top ? py : by, stroke: '#7a828a', 'stroke-width': 1.5 }, g);
+      el('circle', { cx: X(col), cy: py, r: 2.4, fill: '#7a828a' }, g);
+    });
+    el('rect', { x: x1, y: by, width: x2 - x1, height: bh, rx: 4, fill: 'var(--surface2)', stroke: '#7a828a', 'stroke-width': 1.2 }, g);
+    cols.forEach(function (col, i) {
+      txt(pinLabels[i], X(col), top ? by + bh - 5 : by + 11, { 'font-size': 6, fill: 'var(--muted)', 'text-anchor': 'middle' }, g);
+    });
+    txt(name, (x1 + x2) / 2, top ? by + 12 : by + 23, { 'font-size': 8, fill: 'var(--ink)', 'text-anchor': 'middle', 'font-weight': 700 }, g);
+  }
+  function ortho(g, pts, color) {
+    var r = 9, d = 'M' + pts[0].x + ' ' + pts[0].y;
+    for (var i = 1; i < pts.length - 1; i++) {
+      var p = pts[i], prev = pts[i - 1], next = pts[i + 1];
+      var dx1 = Math.sign(p.x - prev.x), dy1 = Math.sign(p.y - prev.y);
+      var dx2 = Math.sign(next.x - p.x), dy2 = Math.sign(next.y - p.y);
+      d += ' L' + (p.x - dx1 * r) + ' ' + (p.y - dy1 * r) + ' Q' + p.x + ' ' + p.y + ' ' + (p.x + dx2 * r) + ' ' + (p.y + dy2 * r);
+    }
+    d += ' L' + pts[pts.length - 1].x + ' ' + pts[pts.length - 1].y;
+    stroke(g, d, color, true);
+    el('circle', { cx: pts[0].x, cy: pts[0].y, r: 2.6, fill: dotColor(color) }, g);
+    el('circle', { cx: pts[pts.length - 1].x, cy: pts[pts.length - 1].y, r: 2.6, fill: dotColor(color) }, g);
+  }
+  function viaLane(g, from2, to1, color, laneX, seamY) {
+    var A = pt2(from2), B = pt(to1);
+    if (seamY) {
+      ortho(g, [A, { x: A.x, y: seamY }, { x: B.x, y: seamY }, B], color);
+    } else {
+      ortho(g, [A, { x: laneX, y: A.y }, { x: laneX, y: B.y }, B], color);
+    }
+  }
+  function viaTop(g, from2, hangCol, color, laneX, topY) {
+    var A = pt2(from2), B = hang(hangCol);
+    ortho(g, [A, { x: laneX, y: A.y }, { x: laneX, y: topY }, { x: B.x, y: topY }, B], color);
+  }
+
+  // ---------- dynamic layers ----------
+  var layer = el('g', {});
+  var layerX = el('g', {});
+  cur = g2root;
+  var layer2 = el('g', {});
+  cur = svg;
+  function grp(step, parent) { return el('g', { 'data-step': step, 'class': 'el' }, parent); }
+
+  // STEP 1
+  var g1 = grp(1, layer);
+  wire(g1, 'B5', { rail: 'T-', c: 20 }, GND, 'down');
+  wire(g1, { rail: 'T-', c: 62 }, { rail: 'B-', c: 62 }, '#7f868c');
+
+  // STEP 2
+  var g2 = grp(2, layer);
+  flyLead(g2, 7, 'C20', '#cf3f36'); resistor(g2, 'C20', 'C22'); led(g2, 22, 23, '#e0483a');
+  flyLead(g2, 6, 'C24', '#d9b91f'); resistor(g2, 'C24', 'C26'); led(g2, 26, 27, '#d9a51f');
+  flyLead(g2, 8, 'C28', '#3f9d54'); resistor(g2, 'C28', 'C30'); led(g2, 30, 31, '#3a9d5f');
+
+  // STEP 3
+  var g3 = grp(3, layer);
+  flyLead(g3, 13, 'C32', '#d97a28'); resistor(g3, 'C32', 'C34');
+  flyLead(g3, 12, 'E33', WHITE); resistor(g3, 'E33', 'E36');
+  flyLead(g3, 9, 'C39', '#3d7dc4'); resistor(g3, 'C39', 'C37');
+  resistor(g3, 'A35', { rail: 'T-', c: 35 });
+  (function () {
+    var xm = X(35.5), yB = ROWY.B;
+    [34, 35, 36, 37].forEach(function (col) {
+      el('line', { x1: X(col), y1: yB, x2: xm + (col - 35.5) * 2, y2: 68, stroke: '#8a5bd6', 'stroke-width': 1.5 }, g3);
+      el('circle', { cx: X(col), cy: yB, r: 2.4, fill: '#8a5bd6' }, g3);
+    });
+    el('circle', { cx: xm, cy: 61, r: 8, fill: 'var(--surface2)', stroke: '#8a5bd6', 'stroke-width': 1.5 }, g3);
+    el('circle', { cx: xm - 3, cy: 61, r: 1.8, fill: '#e0483a' }, g3);
+    el('circle', { cx: xm + 1.5, cy: 58, r: 1.8, fill: '#3a9d5f' }, g3);
+    el('circle', { cx: xm + 1.5, cy: 64, r: 1.8, fill: '#4a7ab5' }, g3);
+    txt('longest→B35', xm + 14, 56, { 'font-size': 7.5, fill: 'var(--muted)' }, g3);
+  })();
+
+  // STEP 4
+  var g4 = grp(4, layer);
+  var BTNS = [
+    { n: 1, cols: [40, 42], sig: 'E12', sigC: '#3d7dc4', gndC: '#7a5236' },
+    { n: 2, cols: [44, 46], sig: 'E13', sigC: '#7c56c9', gndC: '#cf3f36' },
+    { n: 3, cols: [48, 50], sig: 'E17', sigC: '#d9b91f', gndC: '#3f9d54' },
+    { n: 4, cols: [52, 54], sig: 'E11', sigC: '#d97a28', gndC: null },
+    { n: 5, cols: [56, 58], sig: 'E6', sigC: WHITE, gndC: null }
+  ];
+  BTNS.forEach(function (b) {
+    var cL = b.cols[0], cR = b.cols[1], xm = X(cL + 1);
+    [cL, cR].forEach(function (col) {
+      el('line', { x1: X(col), y1: ROWY.E, x2: X(col), y2: 132, stroke: '#7a828a', 'stroke-width': 1.5 }, g4);
+      el('line', { x1: X(col), y1: ROWY.F, x2: X(col), y2: 148, stroke: '#7a828a', 'stroke-width': 1.5 }, g4);
+    });
+    el('rect', { x: xm - 12, y: 128, width: 24, height: 24, rx: 4, fill: 'var(--surface2)', stroke: '#7a828a', 'stroke-width': 1.2 }, g4);
+    el('circle', { cx: xm, cy: 140, r: 6.5, fill: '#3f4742' }, g4);
+    txt(String(b.n), xm, 143, { 'font-size': 8, fill: '#e8e5da', 'text-anchor': 'middle', 'font-weight': 700 }, g4);
+    wire(g4, b.sig, 'D' + cL, b.sigC, 'down');
+    if (b.gndC) wire(g4, 'G' + cR, { rail: 'B-', c: cR }, b.gndC);
+    else resistor(g4, 'G' + cR, { rail: 'B-', c: cR });
+  });
+  el('circle', { cx: bx1 + 14.5, cy: 58.5, r: 12, fill: 'none', stroke: 'var(--accent)', 'stroke-width': 1.5, 'stroke-dasharray': '4 3' }, g4);
+
+  // STEP 6 — power feeds
+  var g6 = grp(6, layerX);
+  ortho(g6, [pt2({ rail: 'T+', c: 2 }), { x: 8, y: pt2({ rail: 'T+', c: 2 }).y }, { x: 8, y: 84 }, { x: X(4), y: 84 }], PWR);
+  ortho(g6, [pt2({ rail: 'T-', c: 2 }), { x: 13, y: pt2({ rail: 'T-', c: 2 }).y }, { x: 13, y: 34 }, { x: X(2), y: 34 }], GND);
+  ortho(g6, [pt2({ rail: 'B-', c: 2 }), { x: 18, y: pt2({ rail: 'B-', c: 2 }).y }, { x: 18, y: 248 }, { x: X(2), y: 248 }], GND);
+  ortho(g6, [pt2({ rail: 'B+', c: 2 }), { x: 3, y: pt2({ rail: 'B+', c: 2 }).y }, { x: 3, y: -88 }, { x: X(4), y: -88 }, hang(4)], PWR);
+
+  // STEP 7 — OLED
+  var g7b = grp(7, layer2);
+  modBox(g7b, [5, 6, 7, 8], 'top', 'OLED', ['GND', 'VCC', 'SCL', 'SDA']);
+  wire(g7b, 'C5', { rail: 'T-', c: 5 }, GND);
+  wire(g7b, 'C6', { rail: 'T+', c: 6 }, PWR);
+  var g7 = grp(7, layerX);
+  viaLane(g7, 'C7', 'C17', '#3d7dc4', 0, 288);
+  viaLane(g7, 'C8', 'C14', '#7c56c9', 0, 296);
+
+  // STEP 8 — DHT + LDR + pot
+  var g8b = grp(8, layer2);
+  modBox(g8b, [14, 15, 16], 'top', 'DHT11', ['VCC', 'DAT', 'GND']);
+  wire(g8b, 'C14', { rail: 'T+', c: 14 }, PWR);
+  wire(g8b, 'C16', { rail: 'T-', c: 16 }, GND);
+  modBox(g8b, [22, 23, 24], 'top', 'LDR', ['VCC', 'GND', 'AO']);
+  wire(g8b, 'C22', { rail: 'T+', c: 22 }, PWR);
+  wire(g8b, 'C23', { rail: 'T-', c: 23 }, GND);
+  modBox(g8b, [30, 32, 34], 'top', 'POT 10k', ['3V3', 'OUT', 'GND']);
+  wire(g8b, 'C30', { rail: 'T+', c: 30 }, PWR);
+  wire(g8b, 'C34', { rail: 'T-', c: 34 }, GND);
+  var g8 = grp(8, layerX);
+  viaLane(g8, 'C15', 'C8', '#3f9d54', 0, 304);
+  viaTop(g8, 'C24', 15, '#d97a28', 932, -56);
+  viaTop(g8, 'C32', 14, '#d9b91f', 938, -64);
+
+  // STEP 9 — PIR + obstacle
+  var g9b = grp(9, layer2);
+  modBox(g9b, [8, 9, 10], 'bot', 'PIR HC-SR501', ['VCC', 'OUT', 'GND']);
+  wire(g9b, 'H8', { rail: 'B+', c: 8 }, PWR);
+  wire(g9b, 'H10', { rail: 'B-', c: 10 }, GND);
+  modBox(g9b, [40, 41, 42], 'top', 'IR OBSTACLE', ['VCC', 'GND', 'OUT']);
+  wire(g9b, 'C40', { rail: 'T+', c: 40 }, PWR);
+  wire(g9b, 'C41', { rail: 'T-', c: 41 }, GND);
+  var g9 = grp(9, layerX);
+  viaTop(g9, 'H9', 16, '#7a5236', 950, -80);
+  viaTop(g9, 'C42', 17, '#2e9aa4', 944, -72);
+
+  // STEP 10 — buzzers
+  var g10b = grp(10, layer2);
+  modBox(g10b, [20, 21], 'bot', 'BZ~', ['+', '−']);
+  wire(g10b, 'H21', { rail: 'B-', c: 21 }, GND);
+  modBox(g10b, [26, 27], 'bot', 'BZ=', ['+', '−']);
+  wire(g10b, 'H27', { rail: 'B-', c: 27 }, GND);
+  var g10 = grp(10, layerX);
+  viaTop(g10, 'H20', 11, '#7c56c9', 23, -56);
+  viaTop(g10, 'H26', 10, '#7f868c', 28, -64);
+
+  // STEP 11 — relay
+  var g11b = grp(11, layer2);
+  modBox(g11b, [46, 47, 48, 49], 'bot', 'RELAY x2', ['VCC', 'GND', 'IN1', 'IN2']);
+  wire(g11b, 'H46', { rail: 'B+', c: 46 }, PWR);
+  wire(g11b, 'H47', { rail: 'B-', c: 47 }, GND);
+  txt('loads on COM+NO screw terminals — LOW VOLTAGE ONLY', X(38), 262, { 'font-size': 8, fill: 'var(--accent)', 'font-weight': 700 }, g11b);
+  var g11 = grp(11, layerX);
+  viaLane(g11, 'H48', 'C9', '#3d7dc4', 0, 312);
+  viaLane(g11, 'H49', 'C10', '#d9b91f', 0, 280);
+
+  // ---------- step filtering + right pane ----------
+  var allGroups = [];
+  [layer, layer2, layerX].forEach(function (l) {
+    Array.prototype.push.apply(allGroups, Array.prototype.slice.call(l.querySelectorAll('g[data-step]')));
+  });
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip[data-step]'));
+  var pane = document.getElementById('pane');
+  var curPhase = '1';
+  var PHASE_RANGE = { 1: [1, 4], 2: [6, 8], 3: [9, 10], 4: [11, 11] };
+  // steps with no wiring of their own show the bench "as built so far":
+  // step 5 = flash; k1-k8 = code cards
+  var STEP_VIEW = { 5: [1, 4], k1: [1, 4], k2: [1, 4], k3: [1, 4],
+                    k4: [1, 7], k5: [1, 8], k6: [1, 9], k7: [1, 10], k8: [1, 11] };
+
+  function updatePane(mode) {
+    if (!pane) return;
+    Array.prototype.forEach.call(pane.querySelectorAll('[data-ph]'), function (elc) {
+      var phOk = elc.getAttribute('data-ph').split(' ').indexOf(curPhase) >= 0;
+      var card = elc.getAttribute('data-card');
+      var show;
+      if (!phOk) show = false;
+      else if (mode === 'all' || mode[0] === 'p') show = card === null;  // phase-wide: intro + checkpoint
+      else show = card === mode;  // single step or code card
+      elc.classList.toggle('show', show);
+    });
+  }
+  function setStep(mode) {
+    chips.forEach(function (ch) { ch.setAttribute('aria-pressed', String(ch.getAttribute('data-step') === mode)); });
+    var lo, hi;
+    if (mode === 'all') { lo = 0; hi = 99; }
+    else if (mode[0] === 'p') { var r = PHASE_RANGE[mode.slice(1)] || [0, 99]; lo = r[0]; hi = r[1]; }
+    else if (STEP_VIEW[mode]) { lo = STEP_VIEW[mode][0]; hi = STEP_VIEW[mode][1]; }
+    else { lo = hi = parseInt(mode, 10); }
+    allGroups.forEach(function (gr) {
+      gr.classList.remove('past', 'future');
+      var s = parseInt(gr.getAttribute('data-step'), 10);
+      if (s < lo) gr.classList.add('past');
+      if (s > hi) gr.classList.add('future');
+    });
+    updatePane(mode);
+  }
+  chips.forEach(function (ch) {
+    ch.addEventListener('click', function () { setStep(ch.getAttribute('data-step')); });
+  });
+
+  // ---------- phase tabs ----------
+  var phBtns = Array.prototype.slice.call(document.querySelectorAll('.phases .ph, .helpbtn'));
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[data-phase]'));
+  var chipAll = document.getElementById('chipAll');
+  var benchzone = document.getElementById('benchzone');
+  function showPhase(n) {
+    curPhase = n;
+    sections.forEach(function (sec) {
+      sec.classList.toggle('vis', sec.getAttribute('data-phase').split(' ').indexOf(n) >= 0);
+    });
+    phBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-ph') === n)); });
+    if (benchzone) benchzone.classList.toggle('hide', n === 'help');
+    var wiring = !!PHASE_RANGE[n];
+    if (chipAll) {
+      chipAll.setAttribute('data-step', wiring ? 'p' + n : 'all');
+      chipAll.textContent = wiring ? 'all of phase ' + n : 'full bench';
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('.chip[data-ph]'), function (ch) {
+      ch.classList.toggle('hidden', ch.getAttribute('data-ph') !== n);
+    });
+    setStep(wiring ? 'p' + n : 'all');
+    try { localStorage.setItem('rg-tab', n); } catch (e) {}
+  }
+  phBtns.forEach(function (b) {
+    b.addEventListener('click', function () { showPhase(b.getAttribute('data-ph')); });
+  });
+  var savedTab = '1';
+  try { savedTab = localStorage.getItem('rg-tab') || '1'; } catch (e) {}
+  showPhase(savedTab);
+
+  // ---------- pan & zoom ----------
+  var VB0 = { x: 0, y: -92, w: 952, h: 700 };
+  var vb = { x: VB0.x, y: VB0.y, w: VB0.w, h: VB0.h };
+  function applyVB() { svg.setAttribute('viewBox', vb.x + ' ' + vb.y + ' ' + vb.w + ' ' + vb.h); }
+  function clientToSvg(e) {
+    var r = svg.getBoundingClientRect();
+    return { x: vb.x + (e.clientX - r.left) / r.width * vb.w, y: vb.y + (e.clientY - r.top) / r.height * vb.h };
+  }
+  function zoomAt(factor, cx, cy) {
+    var nw = Math.min(Math.max(VB0.w / 8, vb.w * factor), VB0.w * 1.3);
+    var scale = nw / vb.w;
+    vb.x = cx - (cx - vb.x) * scale;
+    vb.y = cy - (cy - vb.y) * scale;
+    vb.w = nw;
+    vb.h = vb.h * scale;
+    applyVB();
+  }
+  function bindZoom(id, factor) {
+    var b = document.getElementById(id);
+    if (b) b.addEventListener('click', function () { zoomAt(factor, vb.x + vb.w / 2, vb.y + vb.h / 2); });
+  }
+  bindZoom('zin', 0.75);
+  bindZoom('zout', 1 / 0.75);
+  var zreset = document.getElementById('zreset');
+  if (zreset) zreset.addEventListener('click', function () {
+    vb = { x: VB0.x, y: VB0.y, w: VB0.w, h: VB0.h };
+    applyVB();
+  });
+  svg.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    var p = clientToSvg(e);
+    zoomAt(e.deltaY > 0 ? 1.12 : 1 / 1.12, p.x, p.y);
+  }, { passive: false });
+  (function () {
+    var dragging = false, start = null, startVB = null;
+    svg.addEventListener('pointerdown', function (e) {
+      dragging = true;
+      start = { x: e.clientX, y: e.clientY };
+      startVB = { x: vb.x, y: vb.y };
+      svg.classList.add('panning');
+      if (svg.setPointerCapture) svg.setPointerCapture(e.pointerId);
+    });
+    svg.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      var r = svg.getBoundingClientRect();
+      vb.x = startVB.x - (e.clientX - start.x) / r.width * vb.w;
+      vb.y = startVB.y - (e.clientY - start.y) / r.height * vb.h;
+      applyVB();
+    });
+    ['pointerup', 'pointercancel'].forEach(function (ev) {
+      svg.addEventListener(ev, function () {
+        dragging = false;
+        svg.classList.remove('panning');
+      });
+    });
+  })();
+
+  // ---------- checkbox persistence ----------
+  var KEY = 'rg-guide-v1';
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('input[type=checkbox]'));
+  function refresh() {
+    var done = 0;
+    boxes.forEach(function (b) {
+      if (b.checked) done++;
+      var step = b.closest('.step');
+      if (step) step.classList.toggle('done', b.checked);
+    });
+    document.getElementById('prog').textContent = done + ' / ' + boxes.length;
+  }
+  boxes.forEach(function (b) {
+    if (saved[b.id]) b.checked = true;
+    b.addEventListener('change', function () {
+      saved[b.id] = b.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+      refresh();
+    });
+  });
+  refresh();
+})();
+</script>

@@ -1,0 +1,21 @@
+{
+  "lsp": {
+    "clangd": {
+      "binary": {
+        "path": "/usr/bin/clangd",
+        "arguments": [
+          "--background-index",
+          "--clang-tidy",
+          "--completion-style=detailed",
+          "--header-insertion=never",
+          "--log=error",
+          "--query-driver=**/*xtensa-esp32-elf-g++*,**/*xtensa-esp32-elf-gcc*"
+        ]
+      },
+      "initialization_options": {
+        "compilationDatabasePath": ".",
+        "fallbackFlags": ["-std=c++17"]
+      }
+    }
+  }
+}
